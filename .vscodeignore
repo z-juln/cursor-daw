@@ -1,0 +1,13 @@
+.git/**
+.cursor/**
+.vscode/**
+src/**
+tests/**
+scripts/**
+docs/**
+coverage/**
+*.vsix
+jest.config.cjs
+tsconfig.json
+esbuild.mjs
+package-lock.json

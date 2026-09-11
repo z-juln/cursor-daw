@@ -1,0 +1,368 @@
+{
+  "name": "cursor-drum",
+  "displayName": "Cursor Drum",
+  "description": "纯文本鼓组：键盘录入、网格乐谱、当前文件播放",
+  "version": "0.8.4",
+  "publisher": "cursor-drum",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:cursor-drum",
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "cursor-drum",
+        "aliases": [
+          "Cursor Drum",
+          "drum"
+        ],
+        "extensions": [
+          ".drum"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "cursor-drum",
+        "scopeName": "source.cursor-drum",
+        "path": "./syntaxes/cursor-drum.tmLanguage.json"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cursorDrum",
+          "title": "Cursor Drum",
+          "icon": "media/drum.svg"
+        }
+      ]
+    },
+    "views": {
+      "cursorDrum": [
+        {
+          "id": "cursorDrum.playlist",
+          "name": "播放列表"
+        },
+        {
+          "id": "cursorDrum.recorder",
+          "name": "键盘录制"
+        },
+        {
+          "id": "cursorDrum.creator",
+          "name": "创建"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "cursorDrum.playlist",
+        "contents": "谱库为空。\n[创建鼓谱](command:cursorDrum.newScore)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "cursorDrum.playPause",
+        "title": "Cursor Drum: Play/Pause"
+      },
+      {
+        "command": "cursorDrum.restart",
+        "title": "Cursor Drum: Restart"
+      },
+      {
+        "command": "cursorDrum.stop",
+        "title": "Cursor Drum: Stop"
+      },
+      {
+        "command": "cursorDrum.enablePadMode",
+        "title": "Cursor Drum: 开启 Pad 模式",
+        "category": "Cursor Drum"
+      },
+      {
+        "command": "cursorDrum.togglePadMode",
+        "title": "Cursor Drum: 切换 Pad 模式",
+        "category": "Cursor Drum"
+      },
+      {
+        "command": "cursorDrum.exitPadMode",
+        "title": "Cursor Drum: 退出 Pad 模式",
+        "category": "Cursor Drum"
+      },
+      {
+        "command": "cursorDrum.insertRuler",
+        "title": "Cursor Drum: Insert Ruler"
+      },
+      {
+        "command": "cursorDrum.formatScore",
+        "title": "Cursor Drum: Format Score"
+      },
+      {
+        "command": "cursorDrum.newScore",
+        "title": "Cursor Drum: New Score",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "title": "Cursor Drum: Pad Hit"
+      },
+      {
+        "command": "cursorDrum.openManual",
+        "title": "Cursor Drum: 打开说明书",
+        "icon": "$(book)"
+      },
+      {
+        "command": "cursorDrum.warmUpAudio",
+        "title": "Cursor Drum: 启动音频引擎"
+      },
+      {
+        "command": "cursorDrum.refreshLibrary",
+        "title": "Cursor Drum: 刷新播放列表",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "cursorDrum.openLibraryScore",
+        "title": "Cursor Drum: 打开鼓谱"
+      },
+      {
+        "command": "cursorDrum.playLibraryScore",
+        "title": "Cursor Drum: 播放鼓谱",
+        "icon": "$(play)"
+      },
+      {
+        "command": "cursorDrum.pauseLibraryScore",
+        "title": "Cursor Drum: 暂停鼓谱",
+        "icon": "$(debug-pause)"
+      },
+      {
+        "command": "cursorDrum.deleteLibraryScore",
+        "title": "Cursor Drum: 删除鼓谱",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "cursorDrum.toggleRecording",
+        "title": "Cursor Drum: 切换录制"
+      },
+      {
+        "command": "cursorDrum.creatorSetName",
+        "title": "Cursor Drum: 设置名称"
+      },
+      {
+        "command": "cursorDrum.creatorSetBpm",
+        "title": "Cursor Drum: 设置 BPM"
+      },
+      {
+        "command": "cursorDrum.creatorSetBars",
+        "title": "Cursor Drum: 设置小节数"
+      },
+      {
+        "command": "cursorDrum.creatorCreate",
+        "title": "Cursor Drum: 创建鼓谱"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "cursorDrum.refreshLibrary",
+          "when": "view == cursorDrum.playlist",
+          "group": "navigation"
+        },
+        {
+          "command": "cursorDrum.newScore",
+          "when": "view == cursorDrum.playlist",
+          "group": "navigation"
+        },
+        {
+          "command": "cursorDrum.openManual",
+          "when": "view == cursorDrum.playlist",
+          "group": "navigation"
+        },
+        {
+          "command": "cursorDrum.openManual",
+          "when": "view == cursorDrum.recorder",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "cursorDrum.playLibraryScore",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.score",
+          "group": "inline"
+        },
+        {
+          "command": "cursorDrum.playLibraryScore",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.scorePaused",
+          "group": "inline"
+        },
+        {
+          "command": "cursorDrum.pauseLibraryScore",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.scorePlaying",
+          "group": "inline"
+        },
+        {
+          "command": "cursorDrum.deleteLibraryScore",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.score",
+          "group": "2_destructive"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "cursorDrum.playPause",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorLangId == cursor-drum"
+      },
+      {
+        "command": "cursorDrum.restart",
+        "key": "ctrl+shift+enter",
+        "mac": "cmd+shift+enter",
+        "when": "editorLangId == cursor-drum"
+      },
+      {
+        "command": "cursorDrum.togglePadMode",
+        "key": "ctrl+d",
+        "mac": "cmd+d",
+        "when": "!inputFocus && !editorTextFocus"
+      },
+      {
+        "command": "cursorDrum.togglePadMode",
+        "key": "ctrl+'",
+        "mac": "cmd+'",
+        "when": "editorLangId == cursor-drum && !inputFocus"
+      },
+      {
+        "command": "cursorDrum.exitPadMode",
+        "key": "escape",
+        "when": "cursorDrum.padMode && !inputFocus"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "a",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "a"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "s",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "s"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "d",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "d"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "f",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "f"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "g",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "g"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "q",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "q"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "w",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "w"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "e",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "e"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "r",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "r"
+      },
+      {
+        "command": "cursorDrum.padHit",
+        "key": "t",
+        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "args": "t"
+      }
+    ],
+    "configuration": {
+      "title": "Cursor Drum",
+      "properties": {
+        "cursorDrum.fileExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "drum"
+          ]
+        },
+        "cursorDrum.keyMap": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {
+            "a": "kick",
+            "s": "snare",
+            "d": "ch",
+            "f": "oh",
+            "g": "clap",
+            "q": "tom1",
+            "w": "tom2",
+            "e": "tom3",
+            "r": "crash",
+            "t": "ride"
+          }
+        },
+        "cursorDrum.loop": {
+          "type": "boolean",
+          "default": true
+        },
+        "cursorDrum.padModeOnOpen": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node esbuild.mjs",
+    "check": "tsc --noEmit",
+    "watch": "node esbuild.mjs --watch",
+    "test": "jest",
+    "verify:audio": "esbuild scripts/verifyAudio.ts --bundle --platform=node --format=cjs --external:node-web-audio-api --outfile=dist/verifyAudio.cjs --log-level=warning && node dist/verifyAudio.cjs",
+    "package": "node scripts/trimNative.mjs && vsce package"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.25.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "node-web-audio-api": "^2.2.0"
+  }
+}

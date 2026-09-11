@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Cursor Drum",
+  "scopeName": "source.cursor-drum",
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.cursor-drum",
+      "match": "#.*$"
+    },
+    {
+      "name": "keyword.other.header.cursor-drum",
+      "match": "^[A-Za-z][A-Za-z0-9_-]*(?=\\s*:)"
+    },
+    {
+      "name": "variable.other.instrument.cursor-drum",
+      "match": "^[A-Za-z][A-Za-z0-9_-]*(?=\\s+|\\|)"
+    },
+    {
+      "name": "markup.inserted.hit.cursor-drum",
+      "match": "[xXo*]"
+    },
+    {
+      "name": "comment.punctuation.rest.cursor-drum",
+      "match": "[.\\-·]"
+    },
+    {
+      "name": "punctuation.separator.bar.cursor-drum",
+      "match": "\\|"
+    }
+  ]
+}
