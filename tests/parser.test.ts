@@ -48,6 +48,13 @@ test("后出现的同名轨覆盖前轨", () => {
   expect(score.tracks[0].cells[2]).toBe("hit");
 });
 
+test("解析 kit 头并在未知时回落", () => {
+  expect(parseScore("kit: 808\nkick |x...|\n").kit).toBe("808");
+  const fallback = parseScore("kit: alien\nkick |x...|\n");
+  expect(fallback.kit).toBe("default");
+  expect(fallback.warnings.some((warning) => warning.message.includes("kit"))).toBe(true);
+});
+
 test("错误头使用默认值且未知鼓件静音保留", () => {
   const score = parseScore("foo: bar\nbpm: nope\ncowbell |x...|\n");
   expect(score.bpm).toBe(120);

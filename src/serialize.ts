@@ -1,4 +1,5 @@
 import { BUILTIN_ORDER, canonicalDrumId, ID_WIDTH } from "./drums";
+import { DEFAULT_KIT_ID } from "./kits/registry";
 import { parseScore } from "./parser";
 import { HitKind, Track } from "./types";
 
@@ -24,6 +25,7 @@ function formatTrack(track: Pick<Track, "id" | "cells">, stepsPerBar: number): s
 export interface EmptyTemplateOptions {
   bpm?: number;
   bars?: number;
+  kit?: string;
 }
 
 export function emptyTemplate(options: EmptyTemplateOptions = {}): string {
@@ -34,12 +36,14 @@ export function emptyTemplate(options: EmptyTemplateOptions = {}): string {
   const rests: HitKind[] = Array(bars * 16).fill("rest");
   const labels = Array.from({ length: bars }, (_, index) =>
     String(index + 1).padEnd(16, " ")).join("");
+  const kit = options.kit?.trim() || DEFAULT_KIT_ID;
   return [
     "# cursor-drum 1",
     `bpm: ${bpm}`,
     "meter: 4/4",
     "steps: 16",
     "swing: 0",
+    `kit: ${kit}`,
     "",
     `#        ${labels.trimEnd()}`,
     `#        ${"1e&a2e&a3e&a4e&a".repeat(bars)}`,

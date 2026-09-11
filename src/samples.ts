@@ -1,6 +1,7 @@
-import { voicesFor, voiceDuration, type NoiseVoice, type OscVoice, type Voice } from "./voices";
+import { KitId, normalizeKitId } from "./kits/registry";
+import { readKitWav } from "./kits/wav";
+import { voiceDuration, voicesFor, type NoiseVoice, type OscVoice, type Voice } from "./voices";
 
-/** 用固定种子生成噪声，同一鼓件每次渲染结果相同，才能安全缓存。 */
 function makeNoise(seed: number): () => number {
   let state = seed >>> 0 || 1;
   return () => {
@@ -9,7 +10,6 @@ function makeNoise(seed: number): () => number {
   };
 }
 
-/** RBJ Cookbook 二阶滤波，离线渲染噪声层，不走实时 AudioNode。 */
 function biquad(
   type: NoiseVoice["filter"],
   frequency: number,
@@ -95,38 +95,46 @@ function renderNoise(voice: NoiseVoice, sampleRate: number, pcm: Float32Array, s
 }
 
 const SEEDS: Record<string, number> = {
-  kick: 1,
-  snare: 2,
-  ch: 3,
-  oh: 4,
-  clap: 5,
-  tom1: 6,
-  tom2: 7,
-  tom3: 8,
-  crash: 9,
-  ride: 10,
+  kick: 1, snare: 2, ch: 3, oh: 4, clap: 5,
+  tom1: 6, tom2: 7, tom3: 8, crash: 9, ride: 10,
 };
 
-/** 满力度采样的时长，含各层 delay。 */
-export function sampleDurationSec(drumId: string): number {
-  const voices = voicesFor(drumId, 127);
+export function sampleDurationSec(drumId: string, kitId: string = "default"): number {
+  const voices = voicesFor(drumId, 127, kitId);
   if (voices.length === 0) return 0;
   return Math.max(...voices.map((voice) => voiceDuration(voice))) + 0.02;
 }
 
-/**
- * 在 JS 里离线合成一件鼓的 PCM。
- * 实时播放只播这段缓冲，不再在 AudioContext 里现场造噪声——
- * node-web-audio-api 的 getChannelData() 返回分离副本，写进去的噪声到不了扬声器。
- */
-export function renderSample(drumId: string, sampleRate: number): Float32Array {
-  const voices = voicesFor(drumId, 127);
+export function renderSample(
+  drumId: string,
+  sampleRate: number,
+  kitId: string = "default",
+): Float32Array {
+  const { kitId: resolved } = normalizeKitId(kitId);
+  const voices = voicesFor(drumId, 127, resolved);
   if (voices.length === 0) return new Float32Array(0);
-  const pcm = new Float32Array(Math.max(1, Math.ceil(sampleDurationSec(drumId) * sampleRate)));
+  const pcm = new Float32Array(
+    Math.max(1, Math.ceil(sampleDurationSec(drumId, resolved) * sampleRate)),
+  );
   const seed = SEEDS[drumId] ?? 99;
   voices.forEach((voice: Voice, index) => {
     if (voice.kind === "osc") renderOsc(voice, sampleRate, pcm);
     else renderNoise(voice, sampleRate, pcm, seed + index * 17);
   });
   return pcm;
+}
+
+/** 加载或合成一件鼓的 PCM。采样 kit 读 wav，合成 kit 现场渲染。 */
+export function loadSamplePcm(
+  drumId: string,
+  sampleRate: number,
+  kitId: string,
+  kitsRoot?: string,
+): Float32Array {
+  const { kitId: resolved } = normalizeKitId(kitId);
+  if (resolved.startsWith("wav-") && kitsRoot) {
+    const wav = readKitWav(kitsRoot, resolved as KitId, drumId);
+    if (wav.length > 0) return wav;
+  }
+  return renderSample(drumId, sampleRate, resolved);
 }

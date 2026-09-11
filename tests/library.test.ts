@@ -19,15 +19,18 @@ afterEach(async () => {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
 });
 
-test("首次初始化复制 backbeat，再次初始化不覆盖", async () => {
-  const bundled = path.join(temporaryRoot, "bundled.drum");
+test("首次初始化复制 examples 目录，再次初始化不覆盖", async () => {
+  const bundledDir = path.join(temporaryRoot, "examples");
   const library = path.join(temporaryRoot, "library");
-  await fs.writeFile(bundled, "first");
-  await ensureLibrary(library, bundled);
+  await fs.mkdir(bundledDir);
+  await fs.writeFile(path.join(bundledDir, "backbeat.drum"), "first");
+  await fs.writeFile(path.join(bundledDir, "funk.drum"), "funk");
+  await ensureLibrary(library, bundledDir);
   await fs.writeFile(path.join(library, "backbeat.drum"), "mine");
-  await fs.writeFile(bundled, "second");
-  await ensureLibrary(library, bundled);
+  await fs.writeFile(path.join(bundledDir, "backbeat.drum"), "second");
+  await ensureLibrary(library, bundledDir);
   expect(await fs.readFile(path.join(library, "backbeat.drum"), "utf8")).toBe("mine");
+  expect(await fs.readFile(path.join(library, "funk.drum"), "utf8")).toBe("funk");
 });
 
 test("递归扫描仅返回 drum 并按相对路径排序", async () => {

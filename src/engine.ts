@@ -1,5 +1,6 @@
 import { BUILTIN_ORDER } from "./drums";
-import { renderSample, sampleDurationSec } from "./samples";
+import { DEFAULT_KIT_ID, KIT_DEFINITIONS, normalizeKitId } from "./kits/registry";
+import { loadSamplePcm, sampleDurationSec } from "./samples";
 
 /** node-web-audio-api 与浏览器 AudioContext 的交集，便于在测试中替换。 */
 export interface AudioContextLike {
@@ -37,6 +38,8 @@ export interface EngineOptions {
   autoTick?: boolean;
   /** 母线音量。留出余量，避免同时敲多件鼓时叠加削波。 */
   masterGain?: number;
+  /** 扩展内 media/kits 目录，用于加载采样 kit 的 wav。 */
+  kitsRoot?: string;
 }
 
 const DEFAULT_MASTER_GAIN = 0.6;
@@ -95,6 +98,12 @@ export class DrumEngine {
 
   private readonly bank = new Map<string, { buffer: any; durationSec: number }>();
 
+  private readonly kitsRoot?: string;
+
+  private padKitId = DEFAULT_KIT_ID;
+
+  private playbackKitId = DEFAULT_KIT_ID;
+
   onTick?: (positionSec: number) => void;
 
   constructor(
@@ -105,6 +114,27 @@ export class DrumEngine {
     this.intervalMs = options.intervalMs ?? 25;
     this.autoTick = options.autoTick ?? true;
     this.masterGain = options.masterGain ?? DEFAULT_MASTER_GAIN;
+    this.kitsRoot = options.kitsRoot;
+  }
+
+  setPadKit(kitId: string): void {
+    this.padKitId = normalizeKitId(kitId).kitId;
+  }
+
+  setPlaybackKit(kitId: string): void {
+    this.playbackKitId = normalizeKitId(kitId).kitId;
+  }
+
+  get padKit(): string {
+    return this.padKitId;
+  }
+
+  get playbackKit(): string {
+    return this.playbackKitId;
+  }
+
+  private bankKey(kitId: string, drumId: string): string {
+    return `${kitId}:${drumId}`;
   }
 
   get playing(): boolean {
@@ -150,11 +180,16 @@ export class DrumEngine {
    * 必须用 copyToChannel：node-web-audio-api 的 getChannelData() 是分离副本，
    * 写进去的数据到不了实时播放图。
    */
-  private bufferFor(drumId: string): { buffer: any; durationSec: number } | undefined {
-    const cached = this.bank.get(drumId);
+  private bufferFor(
+    drumId: string,
+    kitId: string,
+  ): { buffer: any; durationSec: number } | undefined {
+    const { kitId: resolved } = normalizeKitId(kitId);
+    const key = this.bankKey(resolved, drumId);
+    const cached = this.bank.get(key);
     if (cached) return cached;
     const ctx = this.context();
-    const pcm = renderSample(drumId, ctx.sampleRate);
+    const pcm = loadSamplePcm(drumId, ctx.sampleRate, resolved, this.kitsRoot);
     if (pcm.length === 0) return undefined;
     const buffer = ctx.createBuffer(1, pcm.length, ctx.sampleRate);
     if (typeof buffer.copyToChannel === "function") {
@@ -162,13 +197,14 @@ export class DrumEngine {
     } else {
       buffer.getChannelData(0).set(pcm);
     }
-    const entry = { buffer, durationSec: sampleDurationSec(drumId) };
-    this.bank.set(drumId, entry);
+    const durationSec = pcm.length / ctx.sampleRate;
+    const entry = { buffer, durationSec: durationSec || sampleDurationSec(drumId, resolved) };
+    this.bank.set(key, entry);
     return entry;
   }
 
-  private spawn(drumId: string, velocity: number, at: number): void {
-    const sample = this.bufferFor(drumId);
+  private spawn(drumId: string, velocity: number, at: number, kitId: string): void {
+    const sample = this.bufferFor(drumId, kitId);
     if (!sample) return;
     const ctx = this.context();
     const source = ctx.createBufferSource();
@@ -183,10 +219,23 @@ export class DrumEngine {
     this.active.push({ node: source, endsAt: at + sample.durationSec });
   }
 
-  /** 预热音频后端并烘焙十件鼓的内置采样。 */
-  warmUp(): void {
+  /** 预热音频后端并烘焙指定 kit 的十件鼓采样。 */
+  warmUp(kitId?: string): void {
     this.context();
-    for (const drumId of BUILTIN_ORDER) this.bufferFor(drumId);
+    const targets = kitId
+      ? [normalizeKitId(kitId).kitId]
+      : [...new Set([this.padKitId, this.playbackKitId])];
+    for (const kit of targets) {
+      for (const drumId of BUILTIN_ORDER) this.bufferFor(drumId, kit);
+    }
+  }
+
+  /** 预烘焙全部内置 kit，安装后或切换鼓组时可选调用。 */
+  warmUpAllKits(): void {
+    this.context();
+    for (const kit of KIT_DEFINITIONS) {
+      for (const drumId of BUILTIN_ORDER) this.bufferFor(drumId, kit.id);
+    }
   }
 
   get contextState(): string {
@@ -196,8 +245,7 @@ export class DrumEngine {
   noteOn(drumId: string, velocity: number): void {
     const ctx = this.context();
     this.prune(ctx.currentTime);
-    // 留一点提前量：刚创建的上下文时钟可能已越过 currentTime，否则第一击会被吞掉。
-    this.spawn(drumId, velocity, ctx.currentTime + IMMEDIATE_LEAD_SEC);
+    this.spawn(drumId, velocity, ctx.currentTime + IMMEDIATE_LEAD_SEC, this.padKitId);
   }
 
   load(score: EngineScore): void {
@@ -233,7 +281,12 @@ export class DrumEngine {
           const absolute = cycle * durationSec + note.timeSec;
           if (absolute < from || absolute >= until) continue;
           if (!loop && absolute >= durationSec) continue;
-          this.spawn(note.drumId, note.velocity, ctx.currentTime + absolute - current);
+          this.spawn(
+            note.drumId,
+            note.velocity,
+            ctx.currentTime + absolute - current,
+            this.playbackKitId,
+          );
         }
       }
     }

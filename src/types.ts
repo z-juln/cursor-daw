@@ -21,6 +21,8 @@ export interface Score {
   meter: string;
   stepsPerBar: number;
   swing: number;
+  /** 鼓组 id，见 kits/registry.ts */
+  kit: string;
   tracks: Track[];
   warnings: ParseWarning[];
   unsupportedVersion: boolean;

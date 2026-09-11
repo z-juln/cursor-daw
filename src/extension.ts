@@ -3,6 +3,8 @@ import * as vscode from "vscode";
 import { getKeyMap, getLoop, getPadModeOnOpen, isDrumEditor } from "./config";
 import { canonicalDrumId } from "./drums";
 import { DrumEngine } from "./engine";
+import { KitMode } from "./kitMode";
+import { KIT_DEFINITIONS } from "./kits/registry";
 import { createNativeContext } from "./nativeContext";
 import { defaultLibraryRoot, ensureLibrary, readLibraryScore } from "./library";
 import { columnToStep, stepToColumn } from "./mapper";
@@ -30,9 +32,12 @@ let engine: DrumEngine | undefined;
 const nowSec = (): number => Date.now() / 1000;
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  const audio = new DrumEngine(createNativeContext);
+  const kitsRoot = vscode.Uri.joinPath(context.extensionUri, "media", "kits").fsPath;
+  const audio = new DrumEngine(createNativeContext, { kitsRoot });
   engine = audio;
   const padMode = new PadMode();
+  const kitMode = new KitMode();
+  audio.setPadKit(kitMode.kitId);
   const recordingMode = new RecordingMode(
     (key, value) => vscode.commands.executeCommand("setContext", key, value),
   );
@@ -53,7 +58,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   try {
     await ensureLibrary(
       libraryRoot,
-      vscode.Uri.joinPath(context.extensionUri, "examples", "backbeat.drum").fsPath,
+      vscode.Uri.joinPath(context.extensionUri, "examples").fsPath,
     );
   } catch (error) {
     void vscode.window.showErrorMessage(`初始化鼓谱库失败：${(error as Error).message}`);
@@ -160,6 +165,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     source = next;
     currentDuration = scoreDurationSec(score);
     transport = { ...transport, loop: getLoop() };
+    audio.setPlaybackKit(score.kit);
+    withAudio(() => audio.warmUp(score.kit));
     audio.load({
       notes: scheduleNotes(score),
       durationSec: currentDuration,
@@ -209,7 +216,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   };
 
   const warmPadIfEnabled = (): void => {
-    if (padMode.enabled) withAudio(() => audio.warmUp());
+    if (padMode.enabled) withAudio(() => audio.warmUp(kitMode.kitId));
   };
 
   register("cursorDrum.enablePadMode", async () => {
@@ -325,7 +332,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
           ? "启动失败"
           : audio.contextState === "closed" ? "未启动" : audio.contextState,
         keyMap: getKeyMap(),
+        activeKitId: kitMode.kitId,
+        kits: KIT_DEFINITIONS,
       };
+    },
+    selectKit: async (kitId) => {
+      await kitMode.set(kitId);
+      audio.setPadKit(kitMode.kitId);
+      withAudio(() => audio.warmUp(kitMode.kitId));
+      updateStatus();
     },
     getPlaylistState: () => ({
       currentPath: source?.uri?.fsPath,
@@ -358,6 +373,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     },
   });
   updateStatus();
+  withAudio(() => audio.warmUpAllKits());
 }
 
 export function deactivate(): void {

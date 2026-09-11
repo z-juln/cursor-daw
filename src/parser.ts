@@ -1,4 +1,5 @@
 import { canonicalDrumId } from "./drums";
+import { DEFAULT_KIT_ID, normalizeKitId } from "./kits/registry";
 import { HitKind, ParseWarning, Score, Track } from "./types";
 
 const HEADER_RE = /^([A-Za-z][A-Za-z0-9_-]{0,15})\s*:\s*(.*)$/;
@@ -52,6 +53,7 @@ export function parseScore(text: string): Score {
   let meter = "4/4";
   let stepsPerBar = 16;
   let swing = 0;
+  let kit = DEFAULT_KIT_ID;
   let unsupportedVersion = false;
   let sawTrack = false;
   const warnings: ParseWarning[] = [];
@@ -82,6 +84,12 @@ export function parseScore(text: string): Score {
         else warnings.push({ message: "swing 无效，使用 0", line: lineIndex });
       } else if (key === "version") {
         unsupportedVersion = value !== "1";
+      } else if (key === "kit") {
+        const resolved = normalizeKitId(value || DEFAULT_KIT_ID);
+        kit = resolved.kitId;
+        if (resolved.fallback) {
+          warnings.push({ message: `未知 kit "${value}"，使用 ${DEFAULT_KIT_ID}`, line: lineIndex });
+        }
       } else {
         warnings.push({ message: `未知文件头 "${key}"`, line: lineIndex });
       }
@@ -121,6 +129,7 @@ export function parseScore(text: string): Score {
     meter,
     stepsPerBar,
     swing,
+    kit,
     tracks: result,
     warnings,
     unsupportedVersion,

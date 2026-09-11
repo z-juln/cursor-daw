@@ -31,6 +31,7 @@ ch     |x.x.x.x.x.x.x.x.|x.x.x.x.x.x.x.x.|
 - `meter`: 拍号，默认 `4/4`。
 - `steps`: 每小节格数，默认 16。
 - `swing`: 0–100，默认 0。
+- `kit`: 播放鼓组，默认 `default`。可选：`default`、`808`、`acoustic`、`wav-classic`、`wav-punch`。Pad 敲击用侧边栏选中的鼓组，播放列表按各文件 `kit:` 头播放。
 
 格子：
 

@@ -2,7 +2,7 @@
   "name": "cursor-drum",
   "displayName": "Cursor Drum",
   "description": "纯文本鼓组：键盘录入、网格乐谱、当前文件播放",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "publisher": "cursor-drum",
   "engines": {
     "vscode": "^1.90.0"
@@ -120,6 +120,10 @@
       {
         "command": "cursorDrum.warmUpAudio",
         "title": "Cursor Drum: 启动音频引擎"
+      },
+      {
+        "command": "cursorDrum.selectKit",
+        "title": "Cursor Drum: 选择鼓组"
       },
       {
         "command": "cursorDrum.refreshLibrary",
@@ -350,6 +354,7 @@
     "watch": "node esbuild.mjs --watch",
     "test": "jest",
     "verify:audio": "esbuild scripts/verifyAudio.ts --bundle --platform=node --format=cjs --external:node-web-audio-api --outfile=dist/verifyAudio.cjs --log-level=warning && node dist/verifyAudio.cjs",
+    "render:kits": "esbuild scripts/renderKitWavs.ts --bundle --platform=node --format=cjs --outfile=dist/renderKitWavs.cjs --log-level=warning && node dist/renderKitWavs.cjs",
     "package": "node scripts/trimNative.mjs && vsce package"
   },
   "devDependencies": {

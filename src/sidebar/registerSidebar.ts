@@ -20,6 +20,7 @@ export interface SidebarHost {
   getPlaylistState(): PlaylistViewState;
   playScoreFile(absolutePath: string): Promise<void>;
   pauseScoreFile(absolutePath: string): Promise<void>;
+  selectKit(kitId: string): Promise<void>;
 }
 
 function itemPath(item: ScoreTreeItem | vscode.Uri | string): string | undefined {
@@ -84,6 +85,15 @@ export function registerSidebar(
     } catch {
       // 没有 Markdown 预览时退回纯文本打开。
       await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
+    }
+  });
+  register("cursorDrum.selectKit", async (kitId: string) => {
+    if (typeof kitId !== "string") return;
+    try {
+      await host.selectKit(kitId);
+      recorder.refresh();
+    } catch (error) {
+      void vscode.window.showErrorMessage(`切换鼓组失败：${(error as Error).message}`);
     }
   });
   register("cursorDrum.refreshLibrary", () => playlist.refresh());
