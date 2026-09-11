@@ -1,13 +1,25 @@
 import * as path from "path";
 import * as vscode from "vscode";
 import {
+  createLibraryFolder,
   createLibraryScore,
+  deleteLibraryFolder,
   deleteLibraryScore,
+  isLibraryFolderEmpty,
+  listAllFolders,
+  renameLibraryEntry,
+  sanitizeFolderPath,
+  sanitizeFolderSegment,
   sanitizeScoreName,
 } from "../library";
 import { emptyTemplate } from "../serialize";
 import { CreatorProvider } from "./creatorProvider";
-import { PlaylistProvider, PlaylistViewState, ScoreTreeItem } from "./playlistProvider";
+import {
+  FolderTreeItem,
+  PlaylistProvider,
+  PlaylistViewState,
+  ScoreTreeItem,
+} from "./playlistProvider";
 import { RecorderProvider, RecorderViewState } from "./recorderProvider";
 
 export interface SidebarController {
@@ -28,6 +40,12 @@ function itemPath(item: ScoreTreeItem | vscode.Uri | string): string | undefined
   if (item instanceof ScoreTreeItem) return item.absolutePath;
   if (item instanceof vscode.Uri) return item.fsPath;
   return typeof item === "string" ? item : undefined;
+}
+
+function folderRelativePath(item: FolderTreeItem | string | undefined): string {
+  if (item instanceof FolderTreeItem) return item.relativePath;
+  if (typeof item === "string") return sanitizeFolderPath(item);
+  return "";
 }
 
 const MANUALS: Record<string, { file: string; title: string }> = {
@@ -55,27 +73,74 @@ export function registerSidebar(
     await vscode.window.showTextDocument(document);
   };
 
-  const createScore = async (): Promise<void> => {
+  const createScore = async (folder?: string): Promise<void> => {
+    if (folder !== undefined) creator.state.folder = folder;
     const content = emptyTemplate({ bpm: creator.state.bpm, bars: creator.state.bars });
     let target: string;
     try {
-      target = await createLibraryScore(root, creator.state.name, content);
+      target = await createLibraryScore(root, creator.state.name, content, {
+        folder: creator.state.folder,
+      });
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
         void vscode.window.showErrorMessage(`创建鼓谱失败：${(error as Error).message}`);
         return;
       }
       const fileName = sanitizeScoreName(creator.state.name);
+      const folderLabel = creator.state.folder || "根目录";
       const answer = await vscode.window.showWarningMessage(
-        `${fileName} 已存在，是否覆盖？`,
+        `${folderLabel}/${fileName} 已存在，是否覆盖？`,
         { modal: true },
         "覆盖",
       );
       if (answer !== "覆盖") return;
-      target = await createLibraryScore(root, creator.state.name, content, true);
+      target = await createLibraryScore(root, creator.state.name, content, {
+        folder: creator.state.folder,
+        overwrite: true,
+      });
     }
     playlist.refresh();
     await openScore(target);
+  };
+
+  const pickLibraryFolder = async (title: string, current = ""): Promise<string | undefined> => {
+    const folders = await listAllFolders(root);
+    const items = [
+      { label: "根目录", description: "谱库顶层", folder: "" },
+      ...folders.map((folder) => ({ label: folder, description: "目录", folder })),
+      { label: "$(new-folder) 新建目录…", description: "输入新的相对路径", folder: "__new__" },
+    ];
+    const picked = await vscode.window.showQuickPick(items, {
+      title,
+      placeHolder: current ? `当前：${current || "根目录"}` : "选择目录",
+    });
+    if (!picked) return undefined;
+    if (picked.folder === "__new__") {
+      const value = await vscode.window.showInputBox({
+        title: "新建目录（可嵌套，如 styles/rock）",
+        validateInput: (input) => {
+          try {
+            sanitizeFolderPath(input);
+            return undefined;
+          } catch (error) {
+            return (error as Error).message;
+          }
+        },
+      });
+      if (value === undefined) return undefined;
+      const safePath = sanitizeFolderPath(value);
+      try {
+        await createLibraryFolder(root, safePath);
+        playlist.refresh();
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
+          void vscode.window.showErrorMessage(`创建目录失败：${(error as Error).message}`);
+          return undefined;
+        }
+      }
+      return safePath;
+    }
+    return picked.folder;
   };
 
   register("cursorDrum.openManual", async (which: string = "skill") => {
@@ -84,7 +149,6 @@ export function registerSidebar(
     try {
       await vscode.commands.executeCommand("markdown.showPreview", uri);
     } catch {
-      // 没有 Markdown 预览时退回纯文本打开。
       await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
     }
   });
@@ -167,6 +231,89 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`删除鼓谱失败：${(error as Error).message}`);
     }
   });
+  register("cursorDrum.createLibraryFolder", async (item?: FolderTreeItem) => {
+    const parent = folderRelativePath(item);
+    const value = await vscode.window.showInputBox({
+      title: parent ? `在 ${parent} 下新建目录` : "新建目录",
+      placeHolder: parent ? "子目录名" : "如 styles/rock",
+      validateInput: (input) => {
+        try {
+          sanitizeFolderSegment(input);
+          return undefined;
+        } catch (error) {
+          return (error as Error).message;
+        }
+      },
+    });
+    if (value === undefined) return;
+    const relativePath = parent
+      ? sanitizeFolderPath(`${parent}/${value}`)
+      : sanitizeFolderPath(value);
+    try {
+      await createLibraryFolder(root, relativePath);
+      playlist.refresh();
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "EEXIST") {
+        void vscode.window.showWarningMessage("目录已存在");
+        return;
+      }
+      void vscode.window.showErrorMessage(`创建目录失败：${(error as Error).message}`);
+    }
+  });
+  register("cursorDrum.renameLibraryFolder", async (item?: FolderTreeItem) => {
+    if (!(item instanceof FolderTreeItem)) return;
+    const currentName = item.relativePath.split("/").pop() ?? item.relativePath;
+    const parent = item.relativePath.includes("/")
+      ? item.relativePath.slice(0, item.relativePath.lastIndexOf("/"))
+      : "";
+    const value = await vscode.window.showInputBox({
+      title: "重命名目录",
+      value: currentName,
+      validateInput: (input) => {
+        try {
+          sanitizeFolderSegment(input);
+          return undefined;
+        } catch (error) {
+          return (error as Error).message;
+        }
+      },
+    });
+    if (value === undefined) return;
+    const nextRelative = parent
+      ? sanitizeFolderPath(`${parent}/${value}`)
+      : sanitizeFolderPath(value);
+    if (nextRelative === item.relativePath) return;
+    try {
+      await renameLibraryEntry(root, item.relativePath, nextRelative);
+      playlist.refresh();
+    } catch (error) {
+      void vscode.window.showErrorMessage(`重命名目录失败：${(error as Error).message}`);
+    }
+  });
+  register("cursorDrum.deleteLibraryFolder", async (item?: FolderTreeItem) => {
+    if (!(item instanceof FolderTreeItem)) return;
+    const empty = await isLibraryFolderEmpty(root, item.relativePath);
+    const answer = await vscode.window.showWarningMessage(
+      empty
+        ? `确定删除空目录 ${item.relativePath}？`
+        : `确定删除目录 ${item.relativePath} 及其中的全部鼓谱？此操作不可撤销。`,
+      { modal: true },
+      "删除",
+    );
+    if (answer !== "删除") return;
+    try {
+      await deleteLibraryFolder(root, item.relativePath);
+      playlist.refresh();
+    } catch (error) {
+      void vscode.window.showErrorMessage(`删除目录失败：${(error as Error).message}`);
+    }
+  });
+  register("cursorDrum.newScoreInFolder", async (item?: FolderTreeItem) => {
+    const folder = folderRelativePath(item);
+    creator.state.folder = folder;
+    creator.refresh();
+    await createScore(folder);
+  });
   register("cursorDrum.creatorSetName", async () => {
     const value = await vscode.window.showInputBox({
       title: "鼓谱名称",
@@ -184,6 +331,12 @@ export function registerSidebar(
       creator.state.name = value.trim();
       creator.refresh();
     }
+  });
+  register("cursorDrum.creatorSetFolder", async () => {
+    const picked = await pickLibraryFolder("创建到哪个目录", creator.state.folder);
+    if (picked === undefined) return;
+    creator.state.folder = picked;
+    creator.refresh();
   });
   register("cursorDrum.creatorSetBpm", async () => {
     const value = await vscode.window.showInputBox({
@@ -217,8 +370,8 @@ export function registerSidebar(
       creator.refresh();
     }
   });
-  register("cursorDrum.creatorCreate", createScore);
-  register("cursorDrum.newScore", createScore);
+  register("cursorDrum.creatorCreate", () => createScore());
+  register("cursorDrum.newScore", () => createScore());
 
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider("cursorDrum.playlist", playlist),

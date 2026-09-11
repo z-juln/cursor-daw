@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { LibraryScore, listScores } from "../library";
+import { listLibraryDirectory } from "../library";
 import {
   isPlayingScore,
   PlaylistViewState,
@@ -8,16 +8,38 @@ import {
 
 export type { PlaylistViewState } from "./scoreContext";
 
+export class FolderTreeItem extends vscode.TreeItem {
+  readonly relativePath: string;
+
+  readonly absolutePath: string;
+
+  constructor(relativePath: string, absolutePath: string) {
+    const name = relativePath.split("/").pop() ?? relativePath;
+    super(name, vscode.TreeItemCollapsibleState.Collapsed);
+    this.id = relativePath;
+    this.relativePath = relativePath;
+    this.absolutePath = absolutePath;
+    this.contextValue = "cursorDrum.folder";
+    this.iconPath = new vscode.ThemeIcon("folder");
+    this.tooltip = relativePath;
+  }
+}
+
 export class ScoreTreeItem extends vscode.TreeItem {
   readonly absolutePath: string;
 
-  constructor(score: LibraryScore, state: PlaylistViewState) {
-    super(score.relativePath, vscode.TreeItemCollapsibleState.None);
-    this.absolutePath = score.absolutePath;
-    this.description = isPlayingScore(score.absolutePath, state) ? "播放中" : "鼓谱";
-    this.tooltip = score.absolutePath;
-    this.resourceUri = vscode.Uri.file(score.absolutePath);
-    this.contextValue = scoreContextValue(score.absolutePath, state);
+  readonly relativePath: string;
+
+  constructor(relativePath: string, absolutePath: string, state: PlaylistViewState) {
+    const name = relativePath.split("/").pop() ?? relativePath;
+    super(name, vscode.TreeItemCollapsibleState.None);
+    this.id = relativePath;
+    this.relativePath = relativePath;
+    this.absolutePath = absolutePath;
+    this.description = isPlayingScore(absolutePath, state) ? "播放中" : undefined;
+    this.tooltip = relativePath;
+    this.resourceUri = vscode.Uri.file(absolutePath);
+    this.contextValue = scoreContextValue(absolutePath, state);
     this.iconPath = new vscode.ThemeIcon(
       this.contextValue === "cursorDrum.scorePlaying" ? "play-circle" : "music",
     );
@@ -29,7 +51,9 @@ export class ScoreTreeItem extends vscode.TreeItem {
   }
 }
 
-export class PlaylistProvider implements vscode.TreeDataProvider<ScoreTreeItem> {
+export type PlaylistTreeItem = FolderTreeItem | ScoreTreeItem;
+
+export class PlaylistProvider implements vscode.TreeDataProvider<PlaylistTreeItem> {
   private readonly emitter = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.emitter.event;
 
@@ -42,14 +66,19 @@ export class PlaylistProvider implements vscode.TreeDataProvider<ScoreTreeItem> 
     this.emitter.fire();
   }
 
-  getTreeItem(element: ScoreTreeItem): vscode.TreeItem {
+  getTreeItem(element: PlaylistTreeItem): vscode.TreeItem {
     return element;
   }
 
-  async getChildren(): Promise<ScoreTreeItem[]> {
+  async getChildren(element?: PlaylistTreeItem): Promise<PlaylistTreeItem[]> {
     const state = this.getState();
-    return (await listScores(this.root)).map(
-      (score) => new ScoreTreeItem(score, state),
-    );
+    const relativeDir = element instanceof FolderTreeItem ? element.relativePath : "";
+    const listing = await listLibraryDirectory(this.root, relativeDir);
+    return [
+      ...listing.folders.map((folder) =>
+        new FolderTreeItem(folder.relativePath, folder.absolutePath)),
+      ...listing.scores.map((score) =>
+        new ScoreTreeItem(score.relativePath, score.absolutePath, state)),
+    ];
   }
 }

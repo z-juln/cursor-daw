@@ -2,7 +2,7 @@
   "name": "cursor-drum",
   "displayName": "Cursor Drum",
   "description": "纯文本鼓组：键盘录入、网格乐谱、当前文件播放",
-  "version": "0.9.1",
+  "version": "0.9.3",
   "publisher": "cursor-drum",
   "engines": {
     "vscode": "^1.90.0"
@@ -159,6 +159,30 @@
         "icon": "$(trash)"
       },
       {
+        "command": "cursorDrum.createLibraryFolder",
+        "title": "Cursor Drum: 新建目录",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "cursorDrum.renameLibraryFolder",
+        "title": "Cursor Drum: 重命名目录",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "cursorDrum.deleteLibraryFolder",
+        "title": "Cursor Drum: 删除目录",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "cursorDrum.newScoreInFolder",
+        "title": "Cursor Drum: 在此目录创建鼓谱",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "cursorDrum.creatorSetFolder",
+        "title": "Cursor Drum: 设置创建目录"
+      },
+      {
         "command": "cursorDrum.toggleRecording",
         "title": "Cursor Drum: 切换录制"
       },
@@ -197,6 +221,11 @@
           "group": "navigation"
         },
         {
+          "command": "cursorDrum.createLibraryFolder",
+          "when": "view == cursorDrum.playlist",
+          "group": "navigation"
+        },
+        {
           "command": "cursorDrum.openManual",
           "when": "view == cursorDrum.playlist",
           "group": "navigation"
@@ -226,6 +255,31 @@
         {
           "command": "cursorDrum.deleteLibraryScore",
           "when": "view == cursorDrum.playlist && viewItem == cursorDrum.score",
+          "group": "2_destructive"
+        },
+        {
+          "command": "cursorDrum.deleteLibraryScore",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.scorePaused",
+          "group": "2_destructive"
+        },
+        {
+          "command": "cursorDrum.newScoreInFolder",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
+          "group": "1_create"
+        },
+        {
+          "command": "cursorDrum.createLibraryFolder",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
+          "group": "1_create"
+        },
+        {
+          "command": "cursorDrum.renameLibraryFolder",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
+          "group": "2_modify"
+        },
+        {
+          "command": "cursorDrum.deleteLibraryFolder",
+          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
           "group": "2_destructive"
         }
       ]

@@ -359,7 +359,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       }
     },
     getPlaylistState: () => ({
-      currentPath: source?.uri?.fsPath,
+      currentPath: source?.uri?.fsPath ? path.normalize(source.uri.fsPath) : undefined,
       status: transport.status,
     }),
     playScoreFile: async (absolutePath) => {

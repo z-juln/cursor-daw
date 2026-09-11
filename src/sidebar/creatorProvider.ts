@@ -4,6 +4,8 @@ export interface CreatorState {
   name: string;
   bpm: number;
   bars: number;
+  /** 相对谱库根的目录，空字符串表示根目录。 */
+  folder: string;
 }
 
 class CreatorItem extends vscode.TreeItem {
@@ -14,10 +16,14 @@ class CreatorItem extends vscode.TreeItem {
   }
 }
 
+function folderLabel(folder: string): string {
+  return folder ? folder : "根目录";
+}
+
 export class CreatorProvider implements vscode.TreeDataProvider<CreatorItem> {
   private readonly emitter = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.emitter.event;
-  readonly state: CreatorState = { name: "untitled", bpm: 120, bars: 2 };
+  readonly state: CreatorState = { name: "untitled", bpm: 120, bars: 2, folder: "" };
 
   refresh(): void {
     this.emitter.fire();
@@ -30,6 +36,7 @@ export class CreatorProvider implements vscode.TreeDataProvider<CreatorItem> {
   getChildren(): CreatorItem[] {
     return [
       new CreatorItem(`名称：${this.state.name}`, "edit", "cursorDrum.creatorSetName"),
+      new CreatorItem(`目录：${folderLabel(this.state.folder)}`, "folder", "cursorDrum.creatorSetFolder"),
       new CreatorItem(`BPM：${this.state.bpm}`, "pulse", "cursorDrum.creatorSetBpm"),
       new CreatorItem(`小节数：${this.state.bars}`, "list-ordered", "cursorDrum.creatorSetBars"),
       new CreatorItem("创建鼓谱", "new-file", "cursorDrum.creatorCreate"),
