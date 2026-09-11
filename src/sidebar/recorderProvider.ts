@@ -46,6 +46,10 @@ class RecorderItem extends vscode.TreeItem {
 const group = (label: string, icon: string, children: RecorderItem[]): RecorderItem =>
   new RecorderItem(label, icon, undefined, children);
 
+function activeKitLabel(state: RecorderViewState): string {
+  return state.kits.find((kit) => kit.id === state.activeKitId)?.label ?? state.activeKitId;
+}
+
 export class RecorderProvider implements vscode.TreeDataProvider<RecorderItem> {
   private readonly emitter = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.emitter.event;
@@ -73,6 +77,16 @@ export class RecorderProvider implements vscode.TreeDataProvider<RecorderItem> {
             tooltip: "开启后按键直接出声；默认 Cmd+D 切换（非编辑器区域），Esc 退出；可在键盘快捷方式中修改",
           },
         ),
+        ...(state.padEnabled ? [
+          new RecorderItem(
+            `鼓组：${activeKitLabel(state)}`,
+            "library",
+            {
+              command: "cursorDrum.pickKit",
+              tooltip: "点击选择 Pad 使用的鼓组（合成或 WAV 采样）",
+            },
+          ),
+        ] : []),
         new RecorderItem(
           `录制：${state.recordingEnabled ? "ON" : "OFF"}`,
           state.recordingEnabled ? "record" : "circle-outline",
@@ -99,7 +113,6 @@ export class RecorderProvider implements vscode.TreeDataProvider<RecorderItem> {
           },
         ),
       ]),
-      group("鼓组（Pad）", "library", this.kits(state)),
       group("鼓垫（点击试听）", "circuit-board", this.pads(state)),
       group("说明", "book", [
         new RecorderItem("鼓谱格式手册", "book", {
@@ -113,19 +126,6 @@ export class RecorderProvider implements vscode.TreeDataProvider<RecorderItem> {
         }),
       ]),
     ];
-  }
-
-  /** 点击切换 Pad 使用的鼓组；播放列表仍按各文件 kit: 头播放。 */
-  private kits(state: RecorderViewState): RecorderItem[] {
-    return state.kits.map((kit) => new RecorderItem(
-      kit.id === state.activeKitId ? `${kit.label} ✓` : kit.label,
-      kit.id === state.activeKitId ? "check" : "circle-outline",
-      {
-        command: "cursorDrum.selectKit",
-        args: [kit.id],
-        tooltip: kit.kind === "wav" ? "内置 WAV 采样" : "内置合成音色",
-      },
-    ));
   }
 
   /** 每个鼓垫都可点击发声，这样不依赖键位就能确认音频通路是否正常。 */

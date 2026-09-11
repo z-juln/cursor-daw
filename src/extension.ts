@@ -55,11 +55,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   let sidebar: SidebarController | undefined;
   const libraryRoot = defaultLibraryRoot();
 
+  const bundledExamplesDir = vscode.Uri.joinPath(context.extensionUri, "examples").fsPath;
+  let librarySynced = false;
+  const syncBundledExamples = async (): Promise<number> => {
+    const copied = await ensureLibrary(libraryRoot, bundledExamplesDir);
+    librarySynced = true;
+    sidebar?.refreshPlaylist();
+    return copied.length;
+  };
   try {
-    await ensureLibrary(
-      libraryRoot,
-      vscode.Uri.joinPath(context.extensionUri, "examples").fsPath,
-    );
+    const copied = await syncBundledExamples();
+    if (copied.length > 0) {
+      output.appendLine(`已同步 ${copied.length} 首示例鼓谱：${copied.join("、")}`);
+    }
   } catch (error) {
     void vscode.window.showErrorMessage(`初始化鼓谱库失败：${(error as Error).message}`);
   }
@@ -342,6 +350,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       withAudio(() => audio.warmUp(kitMode.kitId));
       updateStatus();
     },
+    syncLibrary: async () => {
+      const copied = await syncBundledExamples();
+      if (copied === 0) {
+        void vscode.window.showInformationMessage("示例鼓谱已全部存在，未覆盖已有文件");
+      } else {
+        void vscode.window.showInformationMessage(`已同步 ${copied} 首示例鼓谱到 ~/.cursor-drum`);
+      }
+    },
     getPlaylistState: () => ({
       currentPath: source?.uri?.fsPath,
       status: transport.status,
@@ -373,6 +389,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     },
   });
   updateStatus();
+  if (!librarySynced) void syncBundledExamples().then(() => updateStatus());
   withAudio(() => audio.warmUpAllKits());
 }
 

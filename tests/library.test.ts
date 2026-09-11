@@ -25,10 +25,10 @@ test("首次初始化复制 examples 目录，再次初始化不覆盖", async (
   await fs.mkdir(bundledDir);
   await fs.writeFile(path.join(bundledDir, "backbeat.drum"), "first");
   await fs.writeFile(path.join(bundledDir, "funk.drum"), "funk");
-  await ensureLibrary(library, bundledDir);
+  expect(await ensureLibrary(library, bundledDir)).toEqual(["backbeat.drum", "funk.drum"]);
   await fs.writeFile(path.join(library, "backbeat.drum"), "mine");
   await fs.writeFile(path.join(bundledDir, "backbeat.drum"), "second");
-  await ensureLibrary(library, bundledDir);
+  expect(await ensureLibrary(library, bundledDir)).toEqual([]);
   expect(await fs.readFile(path.join(library, "backbeat.drum"), "utf8")).toBe("mine");
   expect(await fs.readFile(path.join(library, "funk.drum"), "utf8")).toBe("funk");
 });

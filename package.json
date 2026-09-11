@@ -2,7 +2,7 @@
   "name": "cursor-drum",
   "displayName": "Cursor Drum",
   "description": "纯文本鼓组：键盘录入、网格乐谱、当前文件播放",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "cursor-drum",
   "engines": {
     "vscode": "^1.90.0"
@@ -126,6 +126,15 @@
         "title": "Cursor Drum: 选择鼓组"
       },
       {
+        "command": "cursorDrum.pickKit",
+        "title": "Cursor Drum: 选择 Pad 鼓组"
+      },
+      {
+        "command": "cursorDrum.syncLibrary",
+        "title": "Cursor Drum: 同步示例鼓谱",
+        "icon": "$(cloud-download)"
+      },
+      {
         "command": "cursorDrum.refreshLibrary",
         "title": "Cursor Drum: 刷新播放列表",
         "icon": "$(refresh)"
@@ -174,6 +183,11 @@
       "view/title": [
         {
           "command": "cursorDrum.refreshLibrary",
+          "when": "view == cursorDrum.playlist",
+          "group": "navigation"
+        },
+        {
+          "command": "cursorDrum.syncLibrary",
           "when": "view == cursorDrum.playlist",
           "group": "navigation"
         },

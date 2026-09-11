@@ -12,16 +12,17 @@ export function defaultLibraryRoot(): string {
   return path.join(os.homedir(), ".cursor-drum");
 }
 
-/** 将扩展内置 examples 目录中缺失的 .drum 复制到谱库，已存在的不覆盖。 */
-export async function ensureLibrary(root: string, bundledExamplesDir: string): Promise<void> {
+/** 将扩展内置 examples 目录中缺失的 .drum 复制到谱库，已存在的不覆盖。返回新复制的文件名。 */
+export async function ensureLibrary(root: string, bundledExamplesDir: string): Promise<string[]> {
   await fs.mkdir(root, { recursive: true });
   let entries: string[];
   try {
     entries = await fs.readdir(bundledExamplesDir);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;
   }
+  const copied: string[] = [];
   await Promise.all(
     entries
       .filter((name) => name.toLowerCase().endsWith(".drum"))
@@ -32,11 +33,13 @@ export async function ensureLibrary(root: string, bundledExamplesDir: string): P
             path.join(root, name),
             constants.COPYFILE_EXCL,
           );
+          copied.push(name);
         } catch (error) {
           if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
         }
       }),
   );
+  return copied.sort();
 }
 
 export async function listScores(root: string): Promise<LibraryScore[]> {

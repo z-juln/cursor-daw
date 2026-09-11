@@ -21,6 +21,7 @@ export interface SidebarHost {
   playScoreFile(absolutePath: string): Promise<void>;
   pauseScoreFile(absolutePath: string): Promise<void>;
   selectKit(kitId: string): Promise<void>;
+  syncLibrary(): Promise<void>;
 }
 
 function itemPath(item: ScoreTreeItem | vscode.Uri | string): string | undefined {
@@ -94,6 +95,40 @@ export function registerSidebar(
       recorder.refresh();
     } catch (error) {
       void vscode.window.showErrorMessage(`切换鼓组失败：${(error as Error).message}`);
+    }
+  });
+  register("cursorDrum.pickKit", async () => {
+    const state = host.getRecorderState();
+    if (!state.padEnabled) {
+      void vscode.window.showInformationMessage("请先开启 Pad 模式");
+      return;
+    }
+    const picked = await vscode.window.showQuickPick(
+      state.kits.map((kit) => ({
+        label: kit.id === state.activeKitId ? `${kit.label}（当前）` : kit.label,
+        description: kit.kind === "wav" ? "WAV 采样" : "合成",
+        kitId: kit.id,
+        picked: kit.id === state.activeKitId,
+      })),
+      {
+        title: "Pad 鼓组",
+        placeHolder: "选择 Pad 敲击使用的鼓组",
+      },
+    );
+    if (!picked) return;
+    try {
+      await host.selectKit(picked.kitId);
+      recorder.refresh();
+    } catch (error) {
+      void vscode.window.showErrorMessage(`切换鼓组失败：${(error as Error).message}`);
+    }
+  });
+  register("cursorDrum.syncLibrary", async () => {
+    try {
+      await host.syncLibrary();
+      playlist.refresh();
+    } catch (error) {
+      void vscode.window.showErrorMessage(`同步示例鼓谱失败：${(error as Error).message}`);
     }
   });
   register("cursorDrum.refreshLibrary", () => playlist.refresh());
