@@ -58,9 +58,30 @@ export class RecorderProvider implements vscode.WebviewViewProvider {
   }
 
   refresh(): void {
-    if (!this.view) return;
+    if (!this.view?.visible) return;
     const state = this.getState();
     void this.view.webview.postMessage({ type: "state", state: this.serialize(state) });
+  }
+
+  /** 播放中轻量刷新：只推进度，不重建垫子列表。 */
+  tick(payload: {
+    playing: boolean;
+    position: string;
+    positionSec: number;
+    durationSec: number;
+    bpm: number;
+  }): void {
+    if (!this.view?.visible) return;
+    void this.view.webview.postMessage({
+      type: "tick",
+      playing: payload.playing,
+      position: payload.position,
+      positionSec: payload.positionSec,
+      durationSec: payload.durationSec,
+      bpm: payload.bpm,
+      clock: `${formatClock(payload.positionSec)} / ${formatClock(payload.durationSec)}`,
+      progressMax: Math.max(0.001, payload.durationSec),
+    });
   }
 
   private serialize(state: RecorderViewState) {
@@ -199,8 +220,7 @@ const $ = (id) => document.getElementById(id);
 const post = (type, payload = {}) => vscode.postMessage({ type, ...payload });
 const cmd = (command, ...args) => post('command', { command, args });
 
-function render() {
-  const s = state;
+function renderTransport(s) {
   $('pad').textContent = 'Pad：' + (s.padEnabled ? 'ON' : 'OFF');
   $('pad').classList.toggle('on', s.padEnabled);
   $('rec').textContent = '录制：' + (s.recordingEnabled ? 'ON' : 'OFF');
@@ -218,6 +238,9 @@ function render() {
     $('seek').max = String(s.progressMax);
     $('seek').value = String(Math.min(s.positionSec, s.progressMax));
   }
+}
+
+function renderPads(s) {
   const pads = $('pads');
   pads.innerHTML = '';
   let lastGroup = '';
@@ -236,6 +259,29 @@ function render() {
     pads.appendChild(b);
   }
   $('padsTitle').textContent = s.armedRole === 'drums' ? '鼓垫（点击试听）' : '音阶（点击试听）';
+}
+
+function render() {
+  renderTransport(state);
+  renderPads(state);
+}
+
+function applyTick(t) {
+  state.playing = t.playing;
+  state.position = t.position;
+  state.positionSec = t.positionSec;
+  state.durationSec = t.durationSec;
+  state.bpm = t.bpm;
+  state.clock = t.clock;
+  state.progressMax = t.progressMax;
+  $('play').textContent = t.playing ? '暂停' : '播放';
+  $('pos').textContent = '位置 ' + t.position;
+  $('clock').textContent = t.clock;
+  $('meta').textContent = t.bpm + ' BPM · 引擎 ' + (state.audioState || '');
+  if (!dragging) {
+    $('seek').max = String(t.progressMax);
+    $('seek').value = String(Math.min(t.positionSec, t.progressMax));
+  }
 }
 
 $('pad').onclick = () => cmd('cursorDaw.togglePadMode');
@@ -280,7 +326,12 @@ document.querySelectorAll('a.link').forEach((el) => {
 
 window.addEventListener('message', (event) => {
   const msg = event.data;
-  if (msg && msg.type === 'state') {
+  if (!msg) return;
+  if (msg.type === 'tick') {
+    applyTick(msg);
+    return;
+  }
+  if (msg.type === 'state') {
     state = msg.state;
     render();
   }

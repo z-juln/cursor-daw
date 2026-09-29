@@ -71,7 +71,27 @@
     "commands": [
       {
         "command": "cursorDaw.playPause",
-        "title": "Cursor DAW: Play/Pause"
+        "title": "播放/暂停",
+        "icon": "$(play)",
+        "category": "Cursor DAW"
+      },
+      {
+        "command": "cursorDaw.editorPlay",
+        "title": "播放",
+        "icon": "$(play)",
+        "category": "Cursor DAW"
+      },
+      {
+        "command": "cursorDaw.editorPause",
+        "title": "暂停",
+        "icon": "$(debug-pause)",
+        "category": "Cursor DAW"
+      },
+      {
+        "command": "cursorDaw.cloneScore",
+        "title": "克隆",
+        "icon": "$(copy)",
+        "category": "Cursor DAW"
       },
       {
         "command": "cursorDaw.restart",
@@ -221,6 +241,23 @@
       }
     ],
     "menus": {
+      "editor/title": [
+        {
+          "command": "cursorDaw.editorPlay",
+          "when": "resourceExtname == .daw && !cursorDaw.playing",
+          "group": "navigation@1"
+        },
+        {
+          "command": "cursorDaw.editorPause",
+          "when": "resourceExtname == .daw && cursorDaw.playing",
+          "group": "navigation@1"
+        },
+        {
+          "command": "cursorDaw.cloneScore",
+          "when": "resourceExtname == .daw",
+          "group": "navigation@2"
+        }
+      ],
       "view/title": [
         {
           "command": "cursorDaw.refreshLibrary",

@@ -25,6 +25,10 @@ export class DawEngine {
     return this.inner.positionSec;
   }
 
+  get hasBuffer(): boolean {
+    return this.inner.hasBuffer;
+  }
+
   warmUp(): void {
     void this.inner.warmUp();
   }

@@ -87,6 +87,9 @@ export class SoundfontEngine {
 
   private pcm?: { left: Float32Array; right: Float32Array };
 
+  /** 缓存 WebAudio buffer，避免暂停后再次 play 时整曲 copyToChannel。 */
+  private audioBuffer?: any;
+
   private durationSec = 0;
 
   private loop = true;
@@ -137,10 +140,15 @@ export class SoundfontEngine {
     readFileSync(this.options.sf2Path);
   }
 
+  get hasBuffer(): boolean {
+    return Boolean(this.pcm);
+  }
+
   async load(session: Session, notes: TimedNote[], durationSec: number, loop: boolean): Promise<void> {
     await this.warmUp();
     const bytes = encodeMidi(session, notes);
     this.pcm = await renderMidiPcm(bytes, this.options.sf2Path, this.sampleRate);
+    this.audioBuffer = undefined;
     this.durationSec = durationSec;
     this.loop = loop;
   }
@@ -151,11 +159,14 @@ export class SoundfontEngine {
     this.stopSource();
     const ctx = this.ctx!;
     if (ctx.state === "suspended") void ctx.resume();
-    const buffer = ctx.createBuffer(2, this.pcm.left.length, this.sampleRate);
-    buffer.copyToChannel(this.pcm.left, 0);
-    buffer.copyToChannel(this.pcm.right, 1);
+    if (!this.audioBuffer) {
+      const buffer = ctx.createBuffer(2, this.pcm.left.length, this.sampleRate);
+      buffer.copyToChannel(this.pcm.left as Float32Array, 0);
+      buffer.copyToChannel(this.pcm.right as Float32Array, 1);
+      this.audioBuffer = buffer;
+    }
     const source = ctx.createBufferSource();
-    source.buffer = buffer;
+    source.buffer = this.audioBuffer;
     source.loop = this.loop;
     source.connect(this.ensureMaster());
     const offset = Math.max(0, Math.min(fromSec, this.durationSec || fromSec));
@@ -169,7 +180,7 @@ export class SoundfontEngine {
       const position = this.positionSec;
       this.onTick?.(position);
       if (!this.loop && position >= this.durationSec - 0.01) this.stop();
-    }, 50);
+    }, 100);
   }
 
   /** 拖拽进度：播放中重定位；暂停时只更新偏移。 */

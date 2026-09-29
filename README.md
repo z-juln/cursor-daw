@@ -50,6 +50,14 @@ npm run compile
 
 F5 启动 Extension Development Host。安装：`npm run package` 后 Install from VSIX。
 
+## 编辑器
+
+打开 `.daw` 时，编辑器右上角（`...` 左侧）可显示 **播放/暂停**（单图标切换）与 **克隆**。
+
+> Cursor 2.1+ 默认把扩展的编辑器图标收进 `...`。首次请点标题栏 **`...` → Configure Icon Visibility（配置图标可见性）**，勾选 **播放** / **克隆**（或 Pause / Clone），之后就会固定出现在你标出的位置。
+
+进度竖线仅装饰、不改正文。在音高格子行上**鼠标点击或拖动**可跳转进度（当作定位器/进度条；播放中拖动会 scrub）。
+
 ## 快捷键
 
 - Play/Pause：`Cmd/Ctrl+Enter`

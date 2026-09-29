@@ -25,6 +25,13 @@ import { RecorderProvider, RecorderViewState } from "./recorderProvider";
 export interface SidebarController {
   refreshPlaylist(): void;
   refreshRecorder(): void;
+  tickRecorder(payload: {
+    playing: boolean;
+    position: string;
+    positionSec: number;
+    durationSec: number;
+    bpm: number;
+  }): void;
 }
 
 export interface SidebarHost {
@@ -348,5 +355,6 @@ export function registerSidebar(
   return {
     refreshPlaylist: () => playlist.refresh(),
     refreshRecorder: () => recorder.refresh(),
+    tickRecorder: (payload) => recorder.tick(payload),
   };
 }

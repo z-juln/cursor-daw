@@ -1,4 +1,4 @@
-function cellColumns(line: string): number[] {
+export function cellColumns(line: string): number[] {
   const firstBar = line.indexOf("|");
   const match = line.match(/^([A-Za-z][A-Za-z0-9_-]{0,15})\s+/);
   const start = firstBar >= 0 ? firstBar + 1 : (match?.[0].length ?? 0);

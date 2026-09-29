@@ -12,6 +12,12 @@ import { resolvePitchPad } from "./padLayout";
 import { PadMode } from "./padMode";
 import { parseSession } from "./parser";
 import { midiToPitch } from "./pitch";
+import {
+  buildPlayheadIndex,
+  playheadCellsFromIndex,
+  playheadStep,
+  PlayheadIndex,
+} from "./playhead";
 import { RecordingMode } from "./recordingMode";
 import { scheduleSession, scoreDurationSec, stepDurationSec } from "./schedule";
 import { emptyTemplate, formatScoreText, formatSessionText, writeHit } from "./serialize";
@@ -45,14 +51,23 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const output = vscode.window.createOutputChannel("Cursor DAW");
   const playhead = vscode.window.createTextEditorDecorationType({
     backgroundColor: new vscode.ThemeColor("editor.findMatchHighlightBackground"),
-    border: "1px solid",
+    borderWidth: "0 0 0 2px",
+    borderStyle: "solid",
     borderColor: new vscode.ThemeColor("editorCursor.foreground"),
+    overviewRulerColor: new vscode.ThemeColor("editorCursor.foreground"),
+    overviewRulerLane: vscode.OverviewRulerLane.Center,
+    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
   });
   let transport: TransportEngine = createTransport({ loop: getLoop() });
   let currentPosition = 0;
   let currentDuration = 0;
   let source: PlaybackSource | undefined;
   let sessionCache: Session | undefined;
+  /** `${uri}:${version}` 或 loadSource 写入的标记，避免每 tick 重解析大谱面 */
+  let sessionDocKey = "";
+  let playheadIndex: PlayheadIndex | undefined;
+  let lastPlayheadStep = -1;
+  let lastContextPlaying: boolean | undefined;
   let armedTrackName = "drums";
   let armedFallbackRole: TrackRole = "drums";
   /**
@@ -100,13 +115,45 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     return source;
   };
 
+  const rebuildPlayheadIndex = (
+    session: Session,
+    getLineText: (lineIndex: number) => string | undefined,
+  ): void => {
+    playheadIndex = buildPlayheadIndex(session, getLineText);
+    lastPlayheadStep = -1;
+  };
+
+  const rememberSession = (
+    session: Session,
+    docKey: string,
+    getLineText?: (lineIndex: number) => string | undefined,
+  ): Session => {
+    sessionCache = session;
+    sessionDocKey = docKey;
+    if (getLineText) rebuildPlayheadIndex(session, getLineText);
+    else lastPlayheadStep = -1;
+    if (!session.tracks.some((track) => track.name === armedTrackName)) {
+      armedTrackName = session.tracks[0]?.name ?? "drums";
+      armedFallbackRole = session.tracks[0]?.role ?? "drums";
+    } else {
+      armedFallbackRole = session.tracks.find((track) => track.name === armedTrackName)?.role
+        ?? armedFallbackRole;
+    }
+    return session;
+  };
+
   const currentSession = (): Session | undefined => {
-    const text = currentSource()?.text;
-    if (!text) return sessionCache;
-    sessionCache = parseSession(text);
-    if (!sessionCache.tracks.some((track) => track.name === armedTrackName)) {
-      armedTrackName = sessionCache.tracks[0]?.name ?? "drums";
-      armedFallbackRole = sessionCache.tracks[0]?.role ?? "drums";
+    const editor = activeDawEditor();
+    if (editor) {
+      const key = `${editor.document.uri.toString()}:${editor.document.version}`;
+      if (sessionCache && sessionDocKey === key) return sessionCache;
+      const text = editor.document.getText();
+      const lines = text.split(/\r?\n/);
+      return rememberSession(
+        parseSession(text),
+        key,
+        (lineIndex) => lines[lineIndex],
+      );
     }
     return sessionCache;
   };
@@ -116,7 +163,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const armedRole = (): TrackRole => armedTrack()?.role ?? armedFallbackRole;
 
   const positionLabel = (): { bpm: number; label: string } => {
-    const session = currentSession();
+    const session = sessionCache ?? currentSession();
     if (!session) return { bpm: 120, label: "1.1" };
     const step = Math.floor(currentPosition / stepDurationSec(session));
     const bar = Math.floor(step / session.stepsPerBar) + 1;
@@ -124,7 +171,96 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     return { bpm: session.bpm, label: `${bar}.${beat}` };
   };
 
+  const setPlayingContext = (): void => {
+    const playing = transport.status === "playing";
+    if (lastContextPlaying === playing) return;
+    lastContextPlaying = playing;
+    void vscode.commands.executeCommand("setContext", "cursorDaw.playing", playing);
+  };
+
+  const updateEditorChrome = (): void => {
+    setPlayingContext();
+  };
+
+  const ensureDawLanguage = (document: vscode.TextDocument): void => {
+    const ext = path.extname(document.fileName).toLowerCase();
+    if (ext === ".daw" && document.languageId !== "cursor-daw") {
+      void vscode.languages.setTextDocumentLanguage(document, "cursor-daw");
+    }
+  };
+
+  const visibleLineSpan = (
+    editor: vscode.TextEditor,
+  ): { startLine: number; endLine: number } | undefined => {
+    if (editor.visibleRanges.length === 0) return undefined;
+    let startLine = editor.visibleRanges[0].start.line;
+    let endLine = editor.visibleRanges[0].end.line;
+    for (const range of editor.visibleRanges) {
+      startLine = Math.min(startLine, range.start.line);
+      endLine = Math.max(endLine, range.end.line);
+    }
+    // 略扩一点，减少滚轮边缘闪烁
+    return {
+      startLine: Math.max(0, startLine - 2),
+      endLine: Math.min(editor.document.lineCount - 1, endLine + 2),
+    };
+  };
+
+  const indexForEditor = (editor: vscode.TextEditor, isSource: boolean): PlayheadIndex | undefined => {
+    const key = `${editor.document.uri.toString()}:${editor.document.version}`;
+    if (playheadIndex && sessionDocKey === key) return playheadIndex;
+    if (isSource && sessionCache && playheadIndex) {
+      // 播放源已有索引：仅在文档版本变化时按当前文本重建列缓存，不重解析 Session
+      const lines = editor.document.getText().split(/\r?\n/);
+      rebuildPlayheadIndex(sessionCache, (lineIndex) => lines[lineIndex]);
+      sessionDocKey = key;
+      return playheadIndex;
+    }
+    if (isSource && sessionCache) {
+      const lines = editor.document.getText().split(/\r?\n/);
+      rememberSession(sessionCache, key, (lineIndex) => lines[lineIndex]);
+      return playheadIndex;
+    }
+    const text = editor.document.getText();
+    const lines = text.split(/\r?\n/);
+    rememberSession(parseSession(text), key, (lineIndex) => lines[lineIndex]);
+    return playheadIndex;
+  };
+
+  const updatePlayhead = (force = false): void => {
+    const sourceKey = source?.uri?.toString();
+    if (playheadIndex && !force) {
+      const step = playheadStep(playheadIndex, currentPosition);
+      if (step === lastPlayheadStep) return;
+      lastPlayheadStep = step;
+    }
+    for (const editor of vscode.window.visibleTextEditors) {
+      if (!isDrumEditor(editor)) continue;
+      const uriKey = editor.document.uri.toString();
+      const isSource = Boolean(sourceKey && sourceKey === uriKey);
+      const isActive = vscode.window.activeTextEditor === editor;
+      if (!isSource && !isActive) {
+        editor.setDecorations(playhead, []);
+        continue;
+      }
+      const index = indexForEditor(editor, isSource);
+      if (!index) continue;
+      const positionSec = isSource ? currentPosition : 0;
+      if (force) lastPlayheadStep = playheadStep(index, positionSec);
+      // 不 revealRange：API 无法只滚 X，跟播会连带改 Y，打断纵向浏览
+      const ranges = playheadCellsFromIndex(index, positionSec, visibleLineSpan(editor)).map((cell) => {
+        const lineLen = editor.document.lineAt(cell.line).text.length;
+        const start = Math.min(Math.max(0, cell.character), Math.max(0, lineLen - 1));
+        const end = Math.min(start + 1, lineLen);
+        return new vscode.Range(cell.line, start, cell.line, end);
+      });
+      editor.setDecorations(playhead, ranges);
+    }
+  };
+
   const updateStatus = (): void => {
+    updateEditorChrome();
+    updatePlayhead(true);
     sidebar?.refreshRecorder();
     sidebar?.refreshPlaylist();
   };
@@ -142,7 +278,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   audio.onTick = (positionSec) => {
     currentPosition = positionSec;
-    updateStatus();
+    updatePlayhead(false);
+    const { bpm, label } = positionLabel();
+    sidebar?.tickRecorder({
+      playing: true,
+      position: label,
+      positionSec,
+      durationSec: currentDuration,
+      bpm,
+    });
   };
 
   const replaceDocument = async (
@@ -167,14 +311,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       return false;
     }
     source = next;
-    sessionCache = session;
-    if (!session.tracks.some((track) => track.name === armedTrackName)) {
-      armedTrackName = session.tracks[0]?.name ?? "drums";
-      armedFallbackRole = session.tracks[0]?.role ?? "drums";
-    } else {
-      armedFallbackRole = session.tracks.find((t) => t.name === armedTrackName)?.role
-        ?? armedFallbackRole;
-    }
+    const editor = vscode.window.visibleTextEditors.find(
+      (item) => next.uri && item.document.uri.toString() === next.uri.toString(),
+    );
+    const lines = next.text.split(/\r?\n/);
+    const docKey = editor
+      ? `${editor.document.uri.toString()}:${editor.document.version}`
+      : next.uri
+        ? `${next.uri.toString()}:loaded`
+        : "memory:loaded";
+    rememberSession(session, docKey, (lineIndex) => lines[lineIndex]);
     currentDuration = scoreDurationSec(session);
     transport = { ...transport, loop: getLoop() };
     const notes = scheduleSession(session);
@@ -187,38 +333,91 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     return true;
   };
 
+  const sameLoadedSource = (next: PlaybackSource): boolean => {
+    if (!source || !audio.hasBuffer) return false;
+    if (source.uri && next.uri) {
+      return source.uri.toString() === next.uri.toString() && source.text === next.text;
+    }
+    if (source.uri || next.uri) return false;
+    return source.text === next.text;
+  };
+
+  const pushTransportChrome = (): void => {
+    // 状态栏 + 标题栏 context，即时切换播放/暂停
+    updateEditorChrome();
+    const { bpm, label } = positionLabel();
+    sidebar?.tickRecorder({
+      playing: transport.status === "playing",
+      position: label,
+      positionSec: currentPosition,
+      durationSec: currentDuration,
+      bpm,
+    });
+  };
+
   const applyTransport = async (
     event: TransportEvent,
     explicit?: PlaybackSource,
   ): Promise<void> => {
-    if (event.type === "pause" || event.type === "stop") {
+    const resolvedType = event.type === "playPause"
+      ? (transport.status === "playing" ? "pause" : "play")
+      : event.type;
+
+    if (resolvedType === "pause" || resolvedType === "stop") {
       if (!source) return;
+      const time = nowSec();
+      transport = reduceTransport(transport, { type: resolvedType }, time);
+      currentPosition = resolvedType === "stop"
+        ? 0
+        : positionAt(transport, time, currentDuration);
+      // 先改按钮，再停音频
+      pushTransportChrome();
+      withAudio(() => (resolvedType === "stop" ? audio.stop() : audio.pause()));
+      setTimeout(() => {
+        updatePlayhead(true);
+        sidebar?.refreshRecorder();
+        sidebar?.refreshPlaylist();
+      }, 0);
+      return;
+    }
+
+    let next = explicit ?? currentSource();
+    if (!next) {
+      void vscode.window.showWarningMessage("请先打开 .daw，或在播放列表中选择");
+      return;
+    }
+    const editor = activeDawEditor();
+    if (!explicit && editor && next.text.trim() === "") {
+      await replaceDocument(editor, emptyTemplate());
+      next = { uri: editor.document.uri, text: editor.document.getText() };
+    }
+
+    // 暂停/停止后同曲未改内容：跳过 SoundFont 整曲重渲染，直接续播
+    const canResume = sameLoadedSource(next);
+    if (!canResume) {
+      const loaded = await vscode.window.withProgress(
+        { location: vscode.ProgressLocation.Window, title: "Cursor DAW: 加载中…" },
+        () => loadSource(next),
+      );
+      if (!loaded) return;
     } else {
-      let next = explicit ?? currentSource();
-      if (!next) {
-        void vscode.window.showWarningMessage("请先打开 .daw，或在播放列表中选择");
-        return;
-      }
-      const editor = activeDawEditor();
-      if (!explicit && editor && next.text.trim() === "") {
-        await replaceDocument(editor, emptyTemplate());
-        next = { uri: editor.document.uri, text: editor.document.getText() };
-      }
-      if (!(await loadSource(next))) return;
+      source = next;
+      transport = { ...transport, loop: getLoop() };
     }
 
     const time = nowSec();
-    transport = reduceTransport(transport, event, time);
+    transport = reduceTransport(transport, { type: resolvedType }, time);
     currentPosition = positionAt(transport, time, currentDuration);
+    // 先改按钮，再起音频
+    pushTransportChrome();
     if (transport.status === "playing") {
       withAudio(() => audio.play(currentPosition));
-    } else if (transport.status === "paused") {
-      withAudio(() => audio.pause());
-    } else {
-      currentPosition = 0;
-      withAudio(() => audio.stop());
     }
-    updateStatus();
+    setTimeout(() => {
+      updatePlayhead(true);
+      sidebar?.refreshRecorder();
+      sidebar?.refreshPlaylist();
+    }, 0);
   };
 
   const register = (command: string, handler: (...args: any[]) => unknown): void => {
@@ -287,8 +486,52 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     if (editor) await replaceDocument(editor, formatScoreText(editor.document.getText()));
   });
   register("cursorDaw.playPause", () => applyTransport({ type: "playPause" }));
+  register("cursorDaw.editorPlay", () => applyTransport({ type: "play" }));
+  register("cursorDaw.editorPause", () => applyTransport({ type: "pause" }));
   register("cursorDaw.restart", () => applyTransport({ type: "restart" }));
   register("cursorDaw.stop", () => applyTransport({ type: "stop" }));
+  register("cursorDaw.cloneScore", async () => {
+    const editor = activeDawEditor();
+    if (!editor) {
+      void vscode.window.showWarningMessage("请先打开 .daw 工程");
+      return;
+    }
+    const text = editor.document.getText();
+    const original = editor.document.uri;
+    let target: vscode.Uri;
+    if (original.scheme !== "file") {
+      const picked = await vscode.window.showSaveDialog({
+        filters: { DAW: ["daw"] },
+        defaultUri: vscode.Uri.file(path.join(libraryRoot, "untitled-copy.daw")),
+        saveLabel: "克隆为",
+      });
+      if (!picked) return;
+      target = picked;
+    } else {
+      const dir = path.dirname(original.fsPath);
+      const ext = path.extname(original.fsPath) || ".daw";
+      const base = path.basename(original.fsPath, ext);
+      const candidates = [
+        `${base}-copy${ext}`,
+        ...Array.from({ length: 48 }, (_, index) => `${base}-copy-${index + 2}${ext}`),
+      ];
+      let resolved: string | undefined;
+      for (const name of candidates) {
+        const full = path.join(dir, name);
+        try {
+          await vscode.workspace.fs.stat(vscode.Uri.file(full));
+        } catch {
+          resolved = full;
+          break;
+        }
+      }
+      target = vscode.Uri.file(resolved ?? path.join(dir, `${base}-copy-${Date.now()}${ext}`));
+    }
+    await vscode.workspace.fs.writeFile(target, Buffer.from(text, "utf8"));
+    sidebar?.refreshPlaylist();
+    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(target));
+    void vscode.window.showInformationMessage(`已克隆为 ${path.basename(target.fsPath)}`);
+  });
   register("cursorDaw.padHit", async (key: string) => {
     const resolved = resolvePadNote(String(key).toLowerCase());
     if (!resolved) return;
@@ -368,9 +611,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     octave = Math.max(min, octave - 1);
     updateStatus();
   });
-  register("cursorDaw.seek", (sec: number) => {
-    if (!source || !Number.isFinite(sec)) return;
-    const target = Math.max(0, Math.min(Number(sec), currentDuration || 0));
+  const seekTo = (sec: number, options?: { audio?: boolean; chrome?: boolean }): void => {
+    if (!Number.isFinite(sec)) return;
+    const duration = currentDuration > 0
+      ? currentDuration
+      : (sessionCache ? scoreDurationSec(sessionCache) : 0);
+    const target = Math.max(0, Math.min(Number(sec), duration || Number(sec)));
     const wall = nowSec();
     currentPosition = target;
     if (transport.status === "playing") {
@@ -380,26 +626,71 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         anchorScoreSec: target,
         anchorWallSec: wall,
       };
-      withAudio(() => audio.seek(target));
-    } else if (transport.status === "paused") {
-      transport = {
-        ...transport,
-        anchorScoreSec: target,
-        anchorWallSec: wall,
-      };
-      withAudio(() => audio.seek(target));
     } else {
-      // stopped：预览位置，下次播放从此处开始可再点播放
       transport = {
         ...transport,
         status: "paused",
         anchorScoreSec: target,
         anchorWallSec: wall,
       };
+    }
+    if (options?.audio !== false && audio.hasBuffer) {
       withAudio(() => audio.seek(target));
     }
+    if (options?.chrome === false) {
+      updatePlayhead(true);
+      return;
+    }
     updateStatus();
+  };
+
+  register("cursorDaw.seek", (sec: number) => {
+    if (!source) return;
+    seekTo(sec);
   });
+
+  /** 在格子行上鼠标点选/拖动 → 按列 seek（装饰无法拖拽，用光标位置充当定位器）。 */
+  const GRID_ROW_RE = /^[A-Za-z#][A-Za-z0-9#_^-]{0,15}(?:\s+|\s*(?=\|)).*\|/;
+  let lastScrubAudioMs = 0;
+  const scrubFromMouse = (editor: vscode.TextEditor, line: number, character: number): void => {
+    const lineText = editor.document.lineAt(line).text;
+    if (!GRID_ROW_RE.test(lineText)) return;
+
+    const uriKey = editor.document.uri.toString();
+    const isSource = Boolean(source?.uri && source.uri.toString() === uriKey);
+    if (transport.status === "playing" && source?.uri && !isSource) return;
+
+    const key = `${uriKey}:${editor.document.version}`;
+    let session = sessionCache;
+    if (!session || sessionDocKey !== key) {
+      const text = editor.document.getText();
+      const lines = text.split(/\r?\n/);
+      session = rememberSession(parseSession(text), key, (index) => lines[index]);
+    }
+    const stepSec = stepDurationSec(session);
+    if (!(stepSec > 0)) return;
+    currentDuration = scoreDurationSec(session);
+    if (!source || !isSource) {
+      source = { uri: editor.document.uri, text: editor.document.getText() };
+    }
+
+    const step = columnToStep(lineText, character);
+    const target = step * stepSec;
+    const now = Date.now();
+    const shouldAudio = audio.hasBuffer
+      && isSource
+      && (transport.status !== "playing" || now - lastScrubAudioMs >= 80);
+    if (shouldAudio) lastScrubAudioMs = now;
+
+    seekTo(target, {
+      audio: shouldAudio,
+      chrome: false,
+    });
+    pushTransportChrome();
+    setTimeout(() => {
+      sidebar?.refreshPlaylist();
+    }, 0);
+  };
   register("cursorDaw.exportMidi", async () => {
     const text = currentSource()?.text;
     if (!text) {
@@ -439,10 +730,31 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     output,
     { dispose: () => audio.dispose() },
     vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor) ensureDawLanguage(editor.document);
       if (isDrumEditor(editor) && getPadModeOnOpen()) void padMode.set(true);
-      updateStatus();
+      updateEditorChrome();
+      updatePlayhead(true);
+      sidebar?.refreshRecorder();
+      sidebar?.refreshPlaylist();
+    }),
+    vscode.workspace.onDidOpenTextDocument((document) => ensureDawLanguage(document)),
+    vscode.window.onDidChangeVisibleTextEditors(() => updatePlayhead(true)),
+    vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
+      if (isDrumEditor(event.textEditor)) updatePlayhead(true);
+    }),
+    vscode.window.onDidChangeTextEditorSelection((event) => {
+      if (event.kind !== vscode.TextEditorSelectionChangeKind.Mouse) return;
+      if (!isDrumEditor(event.textEditor) || event.selections.length !== 1) return;
+      const active = event.selections[0].active;
+      scrubFromMouse(event.textEditor, active.line, active.character);
     }),
   );
+
+  void vscode.commands.executeCommand("setContext", "cursorDaw.playing", false);
+  if (vscode.window.activeTextEditor) {
+    ensureDawLanguage(vscode.window.activeTextEditor.document);
+  }
+  updateEditorChrome();
 
   sidebar = registerSidebar(context, libraryRoot, {
     getRecorderState: () => {
