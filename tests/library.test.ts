@@ -10,6 +10,7 @@ import {
   listLibraryDirectory,
   listScores,
   readLibraryScore,
+  assertLibraryMove,
   renameLibraryEntry,
   sanitizeScoreName,
 } from "../src/library";
@@ -81,6 +82,21 @@ test("目录可创建、重命名、删除", async () => {
   await deleteLibraryFolder(temporaryRoot, "styles/hard-rock");
   await deleteLibraryFolder(temporaryRoot, "styles");
   expect(await listAllFolders(temporaryRoot)).toEqual([]);
+});
+
+test("移动/重命名禁止落入自身且目标不可已存在", async () => {
+  await createLibraryFolder(temporaryRoot, "demo");
+  await createLibraryScore(temporaryRoot, "a", "x", { folder: "demo" });
+  await createLibraryScore(temporaryRoot, "b", "y", { folder: "" });
+  expect(() => assertLibraryMove(temporaryRoot, "demo", "demo/nested")).toThrow(/自身/);
+  await expect(renameLibraryEntry(temporaryRoot, "b.daw", "demo/a.daw")).rejects.toThrow(/已存在/);
+  await renameLibraryEntry(temporaryRoot, "b.daw", "demo/b.daw");
+  expect(await listLibraryDirectory(temporaryRoot, "demo")).toMatchObject({
+    scores: expect.arrayContaining([
+      expect.objectContaining({ relativePath: "demo/a.daw" }),
+      expect.objectContaining({ relativePath: "demo/b.daw" }),
+    ]),
+  });
 });
 
 test("文件名被清洗并自动补后缀", () => {

@@ -1,4 +1,4 @@
-import { ScoreTreeItem } from "../src/sidebar/playlistProvider";
+import { asPlaylistRef, dropTargetFolder, parentOfPath } from "../src/sidebar/playlistProvider";
 import { scoreContextValue } from "../src/sidebar/scoreContext";
 
 const path = "/Users/me/.cursor-drum/backbeat.daw";
@@ -28,13 +28,38 @@ describe("scoreContextValue", () => {
   });
 });
 
-describe("ScoreTreeItem", () => {
-  it("同名文件以相对路径为 id，切换播放时不会串状态", () => {
-    const state = { status: "stopped" as const };
-    const root = new ScoreTreeItem("backbeat.daw", "/lib/backbeat.daw", state);
-    const legacy = new ScoreTreeItem("legacy/backbeat.daw", "/lib/legacy/backbeat.daw", state);
-    expect(root.id).toBe("backbeat.daw");
-    expect(legacy.id).toBe("legacy/backbeat.daw");
-    expect(root.id).not.toBe(legacy.id);
+describe("dropTargetFolder / parentOfPath", () => {
+  it("投放目标：文件夹用自身，工程用父目录", () => {
+    expect(dropTargetFolder(undefined)).toBe("");
+    expect(dropTargetFolder({
+      kind: "folder",
+      relativePath: "demo",
+      absolutePath: "/lib/demo",
+    })).toBe("demo");
+    expect(dropTargetFolder({
+      kind: "score",
+      relativePath: "demo/a.daw",
+      absolutePath: "/lib/demo/a.daw",
+    })).toBe("demo");
+  });
+
+  it("重命名父路径不能用自身", () => {
+    expect(parentOfPath("demo/loops")).toBe("demo");
+    expect(parentOfPath("loops")).toBe("");
+    expect(parentOfPath("demo/a.daw")).toBe("demo");
+  });
+});
+
+describe("asPlaylistRef", () => {
+  it("识别显式 ref 与仅含路径的对象", () => {
+    expect(asPlaylistRef({
+      kind: "score",
+      relativePath: "a.daw",
+      absolutePath: "/a.daw",
+    })?.kind).toBe("score");
+    expect(asPlaylistRef({
+      relativePath: "demo",
+      absolutePath: "/demo",
+    })?.kind).toBe("folder");
   });
 });

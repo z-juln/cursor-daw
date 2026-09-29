@@ -49,7 +49,8 @@
       "cursorDaw": [
         {
           "id": "cursorDaw.playlist",
-          "name": "播放列表"
+          "name": "播放列表",
+          "type": "webview"
         },
         {
           "id": "cursorDaw.recorder",
@@ -202,7 +203,12 @@
       },
       {
         "command": "cursorDaw.renameLibraryFolder",
-        "title": "Cursor DAW: 重命名目录",
+        "title": "Cursor DAW: 重命名",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "cursorDaw.renameLibraryItem",
+        "title": "Cursor DAW: 重命名",
         "icon": "$(edit)"
       },
       {
@@ -214,6 +220,15 @@
         "command": "cursorDaw.newScoreInFolder",
         "title": "Cursor DAW: 在此目录创建工程",
         "icon": "$(new-file)"
+      },
+      {
+        "command": "cursorDaw.moveLibraryItems",
+        "title": "Cursor DAW: 移动谱库条目"
+      },
+      {
+        "command": "cursorDaw.collapsePlaylist",
+        "title": "Cursor DAW: 折叠播放列表",
+        "icon": "$(collapse-all)"
       },
       {
         "command": "cursorDaw.creatorSetFolder",
@@ -280,6 +295,11 @@
           "group": "navigation"
         },
         {
+          "command": "cursorDaw.collapsePlaylist",
+          "when": "view == cursorDaw.playlist",
+          "group": "navigation"
+        },
+        {
           "command": "cursorDaw.openManual",
           "when": "view == cursorDaw.playlist",
           "group": "navigation"
@@ -288,53 +308,6 @@
           "command": "cursorDaw.openManual",
           "when": "view == cursorDaw.recorder",
           "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "cursorDaw.playLibraryScore",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.score",
-          "group": "inline"
-        },
-        {
-          "command": "cursorDaw.playLibraryScore",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.scorePaused",
-          "group": "inline"
-        },
-        {
-          "command": "cursorDaw.pauseLibraryScore",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.scorePlaying",
-          "group": "inline"
-        },
-        {
-          "command": "cursorDaw.deleteLibraryScore",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.score",
-          "group": "2_destructive"
-        },
-        {
-          "command": "cursorDaw.deleteLibraryScore",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.scorePaused",
-          "group": "2_destructive"
-        },
-        {
-          "command": "cursorDaw.newScoreInFolder",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
-          "group": "1_create"
-        },
-        {
-          "command": "cursorDaw.createLibraryFolder",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
-          "group": "1_create"
-        },
-        {
-          "command": "cursorDaw.renameLibraryFolder",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
-          "group": "2_modify"
-        },
-        {
-          "command": "cursorDaw.deleteLibraryFolder",
-          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
-          "group": "2_destructive"
         }
       ]
     },
@@ -766,6 +739,7 @@
     "typescript": "^5.7.0"
   },
   "dependencies": {
+    "@vscode/codicons": "^0.0.46-24",
     "node-web-audio-api": "^2.2.0",
     "spessasynth_core": "^4.3.22"
   }

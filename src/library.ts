@@ -220,13 +220,39 @@ export async function createLibraryFolder(root: string, relativePath: string): P
   return target;
 }
 
+/** 校验谱库内移动/重命名：禁止落到自身或子路径。同路径视为无操作。 */
+export function assertLibraryMove(
+  root: string,
+  fromRelative: string,
+  toRelative: string,
+): void {
+  const from = fromRelative.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  const to = toRelative.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  if (!from || !to) throw new Error("路径无效");
+  resolveInsideLibrary(root, from);
+  resolveInsideLibrary(root, to);
+  if (from === to) return;
+  if (to === from || to.startsWith(`${from}/`)) {
+    throw new Error("不能移动到自身或子目录");
+  }
+}
+
 export async function renameLibraryEntry(
   root: string,
   fromRelative: string,
   toRelative: string,
 ): Promise<string> {
+  assertLibraryMove(root, fromRelative, toRelative);
   const from = resolveInsideLibrary(root, fromRelative);
   const to = resolveInsideLibrary(root, toRelative);
+  if (path.resolve(from) === path.resolve(to)) return to;
+  try {
+    await fs.access(to, constants.F_OK);
+    throw new Error("目标已存在");
+  } catch (error) {
+    if ((error as Error).message === "目标已存在") throw error;
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
   await fs.mkdir(path.dirname(to), { recursive: true });
   await fs.rename(from, to);
   return to;
