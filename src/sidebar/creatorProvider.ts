@@ -35,11 +35,11 @@ export class CreatorProvider implements vscode.TreeDataProvider<CreatorItem> {
 
   getChildren(): CreatorItem[] {
     return [
-      new CreatorItem(`名称：${this.state.name}`, "edit", "cursorDrum.creatorSetName"),
-      new CreatorItem(`目录：${folderLabel(this.state.folder)}`, "folder", "cursorDrum.creatorSetFolder"),
-      new CreatorItem(`BPM：${this.state.bpm}`, "pulse", "cursorDrum.creatorSetBpm"),
-      new CreatorItem(`小节数：${this.state.bars}`, "list-ordered", "cursorDrum.creatorSetBars"),
-      new CreatorItem("创建鼓谱", "new-file", "cursorDrum.creatorCreate"),
+      new CreatorItem(`名称：${this.state.name}`, "edit", "cursorDaw.creatorSetName"),
+      new CreatorItem(`目录：${folderLabel(this.state.folder)}`, "folder", "cursorDaw.creatorSetFolder"),
+      new CreatorItem(`BPM：${this.state.bpm}`, "pulse", "cursorDaw.creatorSetBpm"),
+      new CreatorItem(`小节数：${this.state.bars}`, "list-ordered", "cursorDaw.creatorSetBars"),
+      new CreatorItem("创建工程", "new-file", "cursorDaw.creatorCreate"),
     ];
   }
 }

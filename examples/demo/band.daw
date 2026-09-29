@@ -1,0 +1,34 @@
+# cursor-daw 1
+bpm: 100
+meter: 4/4
+steps: 16
+swing: 8
+
+track drums
+role: drums
+plugin: drum.gm
+kick   |x...x...x...x...|x...x...x...x...|
+snare  |....x.......x...|....x.......x...|
+ch     |x.x.x.x.x.x.x.x.|x.x.x.x.x.x.x.x.|
+oh     |................|..............x.|
+
+track piano
+role: keys
+plugin: keys.gm
+program: 0
+C4     |x===........x===|....x===........|
+E4     |....x===........|x===........x===|
+G4     |........x=======|........x=======|
+
+track guitar
+role: guitar
+plugin: gtr.gm
+program: 24
+E3     |x=======........|....x=======....|
+B3     |........x=======|x=======........|
+
+track bass
+role: bass
+plugin: bass.gm
+program: 32
+E2     |x=======x=======|x===....x=======|

@@ -1,26 +1,38 @@
 ---
-name: writing-cursor-drum-scores
-description: Use when creating or editing Cursor Drum `.drum` rhythm files, drum patterns, beats, or percussion grids.
+name: writing-cursor-daw-scores
+description: Use when creating or editing Cursor DAW `.daw` multi-track session files, drum/keys/guitar/bass grids, or MIDI import/export.
 ---
 
-# 编写 Cursor Drum 鼓谱
+# 编写 Cursor DAW 工程
 
 ## 核心格式
 
-`.drum` 是 UTF-8 纯文本：每行是一件鼓，横向每个字符是一个 step，`|` 是小节线且不占 step。
+`.daw` 是 UTF-8 纯文本多轨工程：先写全局头，再按 `track` 分段；每段内每行是一个音高或鼓件，横向每个字符是一个 step，`|` 是小节线且不占 step。
 
 ```text
-# cursor-drum 1
+# cursor-daw 1
 bpm: 120
 meter: 4/4
 steps: 16
 swing: 0
 
-#        1               2
-#        1e&a2e&a3e&a4e&a1e&a2e&a3e&a4e&a
-kick   |x...x...x...x...|x...x...x...x...|
-snare  |....x.......x...|....x.......x...|
-ch     |x.x.x.x.x.x.x.x.|x.x.x.x.x.x.x.x.|
+track drums
+role: drums
+kick   |x...x...x...x...|
+snare  |....x.......x...|
+ch     |x.x.x.x.x.x.x.x.|
+
+track piano
+role: keys
+program: 0
+C4     |x===........x===|
+E4     |....x===........|
+G4     |........x=======|
+
+track bass
+role: bass
+program: 32
+E2     |x=======x=======|
 ```
 
 ## 快查
@@ -31,40 +43,44 @@ ch     |x.x.x.x.x.x.x.x.|x.x.x.x.x.x.x.x.|
 - `meter`: 拍号，默认 `4/4`。
 - `steps`: 每小节格数，默认 16。
 - `swing`: 0–100，默认 0。
-- `kit`: 播放鼓组，默认 `default`。可选：`default`、`808`、`acoustic`、`wav-classic`、`wav-punch`。Pad 敲击用侧边栏选中的鼓组，播放列表按各文件 `kit:` 头播放。
+
+轨头：
+
+- `track <name>`：开始一条轨。
+- `role`: `drums` | `keys` | `guitar` | `bass`。
+- `plugin`: 可选提示（如 `drum.gm` / `keys.gm`）。
+- `program`: GM 音色号（鼓轨忽略；钢琴 0、吉他 24、贝斯 32 等）。
 
 格子：
 
 - `.`、`-`、`·`：休止。
-- `x`、`*`：普通击打，力度 100。
+- `x`、`*`：普通起音，力度 100。
 - `X`：重音，力度 127。
 - `o`：弱音/ghost，力度 50。
+- `=`：延音（接在起音后；鼓轨忽略）。
 
-内置鼓件及别名：
+鼓件及别名：`kick`/`bd`/`k`，`snare`/`sd`/`sn`，`ch`/`hh`/`hat`，`oh`/`ho`，`clap`/`cp`，`tom1`/`ht`，`tom2`/`mt`，`tom3`/`lt`，`crash`/`cr`，`ride`/`rd`。
 
-- `kick`: `bd`, `k`
-- `snare`: `sd`, `sn`
-- `ch`: `hh`, `hat`（闭镲）
-- `oh`: `ho`（开镲）
-- `clap`: `cp`
-- `tom1`: `ht`
-- `tom2`: `mt`
-- `tom3`: `lt`
-- `crash`: `cr`
-- `ride`: `rd`
+音高行：用标准音名，如 `C4`、`Eb3`、`F#2`。
 
 ## 编写规则
 
-1. 新文件带完整文件头与标尺注释。
+1. 新文件带完整文件头与至少一条 `track`。
 2. 每小节恰好写 `steps` 个格子字符；不要把 `|` 算进去。
-3. 所有轨道总格数一致，乐器名建议补到 6 字符宽。
-4. 修改现有文件时保留原有注释、小节线和未涉及轨道。
-5. Agent 直接修改文本；Pad 模式仅供用户键盘演奏。
-6. 谱库与 `examples/` 均支持子目录；播放列表按文件夹浏览。内置示例分为 `styles/`（按风格）与 `rhythms/`（按节奏型），`legacy/` 保留早期模板。
+3. 同一轨内各行总格数一致；乐器/音高名建议补到 6 字符宽。
+4. 修改现有文件时保留注释、小节线和未涉及轨。
+5. Agent 直接改文本；Pad 模式供用户键盘演奏（侧边栏选当前轨与八度）。
+6. 谱库在 `~/.cursor-daw`；`examples/` 按 `demo/`（多轨演示）与 `loops/`（鼓点/节奏 loop：`styles/`、`rhythms/`、`legacy/`）划分。
+
+## 音频与 MIDI
+
+- 播放：工程 → 内存 MIDI → SoundFont（GM SF3）合成。
+- 导出：`Cursor DAW: 导出 MIDI`。
+- 导入：`Cursor DAW: 导入 MIDI` → 写入 `~/.cursor-daw`。
 
 ## 常见错误
 
-- 不要用 Tab 或格内空格对齐，空格不是合法休止格。
-- 不要使用 `HH`、`SD`、`BD` 等未列出的大小写 ID；优先写规范 ID。
-- 不要在轨道行尾写解释文字；说明请放在独立 `#` 注释行。
-- 不要把一小节拆成多条同名轨道；同名轨道后者会覆盖前者。
+- 不要用 Tab 或格内空格对齐。
+- 不要写旧版 `.drum` / `kit:` 头。
+- 不要在格子行尾写解释；说明放独立 `#` 注释行。
+- 延音 `=` 只能接在起音后；孤立的 `=` 无效。

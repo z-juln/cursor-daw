@@ -19,7 +19,7 @@ export class FolderTreeItem extends vscode.TreeItem {
     this.id = relativePath;
     this.relativePath = relativePath;
     this.absolutePath = absolutePath;
-    this.contextValue = "cursorDrum.folder";
+    this.contextValue = "cursorDaw.folder";
     this.iconPath = new vscode.ThemeIcon("folder");
     this.tooltip = relativePath;
   }
@@ -41,11 +41,11 @@ export class ScoreTreeItem extends vscode.TreeItem {
     this.resourceUri = vscode.Uri.file(absolutePath);
     this.contextValue = scoreContextValue(absolutePath, state);
     this.iconPath = new vscode.ThemeIcon(
-      this.contextValue === "cursorDrum.scorePlaying" ? "play-circle" : "music",
+      this.contextValue === "cursorDaw.scorePlaying" ? "play-circle" : "music",
     );
     this.command = {
-      command: "cursorDrum.openLibraryScore",
-      title: "打开鼓谱",
+      command: "cursorDaw.openLibraryScore",
+      title: "打开工程",
       arguments: [this],
     };
   }

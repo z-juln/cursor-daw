@@ -22,8 +22,19 @@ function writeVarLen(value: number): number[] {
   return bytes;
 }
 
+/** Same-tick order: meta → program/CC → note off → note on. */
+function eventPriority(data: number[]): number {
+  const status = data[0];
+  if (status === 0xff) return 0;
+  const hi = status & 0xf0;
+  if (hi === 0xc0 || hi === 0xb0) return 1;
+  if (hi === 0x80) return 2;
+  if (hi === 0x90) return 3;
+  return 4;
+}
+
 function trackBytes(events: { tick: number; data: number[] }[]): Buffer {
-  events.sort((a, b) => a.tick - b.tick || a.data[0] - b.data[0]);
+  events.sort((a, b) => a.tick - b.tick || eventPriority(a.data) - eventPriority(b.data));
   const body: number[] = [];
   let last = 0;
   for (const event of events) {

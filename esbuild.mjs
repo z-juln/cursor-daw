@@ -6,7 +6,7 @@ const context = await esbuild.context({
   bundle: true,
   outfile: "dist/extension.js",
   // 原生音频后端是纯 ESM + .node 二进制，必须留在 bundle 外由宿主 require。
-  external: ["vscode", "node-web-audio-api"],
+  external: ["vscode", "node-web-audio-api", "spessasynth_core", "stb-vorbis"],
   platform: "node",
   format: "cjs",
   sourcemap: true,

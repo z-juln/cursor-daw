@@ -25,7 +25,7 @@ export interface CreateScoreOptions {
 }
 
 export function defaultLibraryRoot(): string {
-  return path.join(os.homedir(), ".cursor-drum");
+  return path.join(os.homedir(), ".cursor-daw");
 }
 
 function resolvedLibraryRoot(root: string): string {
@@ -67,9 +67,9 @@ export function sanitizeScoreName(rawName: string): string {
   if (!withoutTrailingDots || /^-+$/.test(withoutTrailingDots)) {
     throw new Error("鼓谱名称不能为空");
   }
-  return withoutTrailingDots.toLowerCase().endsWith(".drum")
+  return withoutTrailingDots.toLowerCase().endsWith(".daw")
     ? withoutTrailingDots
-    : `${withoutTrailingDots}.drum`;
+    : `${withoutTrailingDots}.daw`;
 }
 
 export function resolveLibraryFile(root: string, folder: string, fileName: string): string {
@@ -115,7 +115,7 @@ async function copyBundledDrums(
       copied.push(...await copyBundledDrums(bundledExamplesDir, libraryRoot, relPath));
       return;
     }
-    if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".drum")) return;
+    if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".daw")) return;
     const target = resolveInsideLibrary(libraryRoot, relPath);
     await fs.mkdir(path.dirname(target), { recursive: true });
     try {
@@ -128,7 +128,7 @@ async function copyBundledDrums(
   return copied;
 }
 
-/** 递归复制扩展 examples 中缺失的 .drum，保留子目录结构。 */
+/** 递归复制扩展 examples 中缺失的 .daw，保留子目录结构。 */
 export async function ensureLibrary(root: string, bundledExamplesDir: string): Promise<string[]> {
   await fs.mkdir(root, { recursive: true });
   const copied = await copyBundledDrums(bundledExamplesDir, root);
@@ -158,7 +158,7 @@ export async function listLibraryDirectory(
     const relativePath = rel.split(path.sep).join("/");
     if (entry.isDirectory()) {
       folders.push({ name: entry.name, relativePath, absolutePath });
-    } else if (entry.isFile() && path.extname(entry.name).toLowerCase() === ".drum") {
+    } else if (entry.isFile() && path.extname(entry.name).toLowerCase() === ".daw") {
       scores.push({ name: entry.name, relativePath, absolutePath });
     }
   }

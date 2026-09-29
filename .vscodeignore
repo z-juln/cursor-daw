@@ -6,8 +6,10 @@ tests/**
 scripts/**
 docs/**
 coverage/**
+.superpowers/**
 *.vsix
 jest.config.cjs
 tsconfig.json
 esbuild.mjs
 package-lock.json
+media/kits/**

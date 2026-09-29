@@ -16,11 +16,11 @@ export function scoreContextValue(
   state: PlaylistViewState,
 ): string {
   if (!state.currentPath || !samePath(state.currentPath, absolutePath)) {
-    return "cursorDrum.score";
+    return "cursorDaw.score";
   }
-  if (state.status === "playing") return "cursorDrum.scorePlaying";
-  if (state.status === "paused") return "cursorDrum.scorePaused";
-  return "cursorDrum.score";
+  if (state.status === "playing") return "cursorDaw.scorePlaying";
+  if (state.status === "paused") return "cursorDaw.scorePaused";
+  return "cursorDaw.score";
 }
 
 export function isPlayingScore(

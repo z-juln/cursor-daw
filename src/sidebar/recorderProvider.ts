@@ -1,6 +1,14 @@
 import * as vscode from "vscode";
 import { DEFAULT_KEY_MAP, DRUM_LABELS } from "../drums";
-import { KitDefinition } from "../kits/registry";
+import { pitchPadRows } from "../padLayout";
+import { TrackRole } from "../types";
+
+const ROLE_LABEL: Record<TrackRole, string> = {
+  drums: "鼓",
+  keys: "钢琴",
+  guitar: "吉他",
+  bass: "贝斯",
+};
 
 export interface RecorderViewState {
   padEnabled: boolean;
@@ -8,11 +16,12 @@ export interface RecorderViewState {
   playing: boolean;
   bpm: number;
   position: string;
-  /** 原生音频上下文状态，running 之外都发不出声。 */
   audioState: string;
   keyMap: Record<string, string>;
-  activeKitId: string;
-  kits: KitDefinition[];
+  tracks: { name: string; role: TrackRole }[];
+  armedTrackName: string;
+  armedRole: TrackRole;
+  octave: number;
 }
 
 class RecorderItem extends vscode.TreeItem {
@@ -46,10 +55,6 @@ class RecorderItem extends vscode.TreeItem {
 const group = (label: string, icon: string, children: RecorderItem[]): RecorderItem =>
   new RecorderItem(label, icon, undefined, children);
 
-function activeKitLabel(state: RecorderViewState): string {
-  return state.kits.find((kit) => kit.id === state.activeKitId)?.label ?? state.activeKitId;
-}
-
 export class RecorderProvider implements vscode.TreeDataProvider<RecorderItem> {
   private readonly emitter = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.emitter.event;
@@ -73,76 +78,94 @@ export class RecorderProvider implements vscode.TreeDataProvider<RecorderItem> {
           `Pad：${state.padEnabled ? "ON" : "OFF"}`,
           "keyboard",
           {
-            command: "cursorDrum.togglePadMode",
-            tooltip: "开启后按键直接出声；默认 Cmd+D 切换（非编辑器区域），Esc 退出；可在键盘快捷方式中修改",
+            command: "cursorDaw.togglePadMode",
+            tooltip: "开启后键盘按键出声；Cmd+D 切换，Esc 退出",
           },
         ),
-        ...(state.padEnabled ? [
-          new RecorderItem(
-            `鼓组：${activeKitLabel(state)}`,
-            "library",
-            {
-              command: "cursorDrum.pickKit",
-              tooltip: "点击选择 Pad 使用的鼓组（合成或 WAV 采样）",
-            },
-          ),
+        new RecorderItem(
+          `乐器：${ROLE_LABEL[state.armedRole]} · ${state.armedTrackName}`,
+          "music",
+          {
+            command: "cursorDaw.pickTrack",
+            tooltip: "切换 Pad / 录制写入的乐器轨",
+          },
+        ),
+        ...(state.armedRole !== "drums" ? [
+          new RecorderItem(`低排八度：C${state.octave}（点此升高）`, "arrow-up", {
+            command: "cursorDaw.octaveUp",
+            tooltip: "升高整个三排音阶",
+          }),
+          new RecorderItem("降八度", "arrow-down", {
+            command: "cursorDaw.octaveDown",
+            tooltip: "降低整个三排音阶",
+          }),
         ] : []),
         new RecorderItem(
           `录制：${state.recordingEnabled ? "ON" : "OFF"}`,
           state.recordingEnabled ? "record" : "circle-outline",
           {
-            command: "cursorDrum.toggleRecording",
-            tooltip: "开启后敲击会写入当前 .drum 文件",
+            command: "cursorDaw.toggleRecording",
+            tooltip: "开启后敲击写入当前乐器轨",
           },
         ),
         new RecorderItem(
           state.playing ? "暂停" : "播放",
           state.playing ? "debug-pause" : "play",
-          { command: "cursorDrum.playPause" },
+          { command: "cursorDaw.playPause" },
         ),
         new RecorderItem("停止并回到开头", "debug-stop", {
-          command: "cursorDrum.stop",
+          command: "cursorDaw.stop",
         }),
         new RecorderItem(`${state.bpm} BPM · 位置 ${state.position}`, "dashboard"),
         new RecorderItem(
           `音频引擎：${state.audioState}`,
           state.audioState === "running" ? "check" : "warning",
           {
-            command: "cursorDrum.warmUpAudio",
-            tooltip: "running 之外都发不出声，点击重新启动音频引擎",
+            command: "cursorDaw.warmUpAudio",
+            tooltip: "running 之外都发不出声",
           },
         ),
       ]),
-      group("鼓垫（点击试听）", "circuit-board", this.pads(state)),
+      ...this.padGroups(state),
       group("说明", "book", [
-        new RecorderItem("鼓谱格式手册", "book", {
-          command: "cursorDrum.openManual",
+        new RecorderItem("工程格式手册", "book", {
+          command: "cursorDaw.openManual",
           args: ["skill"],
-          tooltip: "纵向是鼓件、横向是 step 的纯文本格式规范",
         }),
-        new RecorderItem("使用说明与键位", "question", {
-          command: "cursorDrum.openManual",
+        new RecorderItem("使用说明", "question", {
+          command: "cursorDaw.openManual",
           args: ["readme"],
         }),
       ]),
     ];
   }
 
-  /** 每个鼓垫都可点击发声，这样不依赖键位就能确认音频通路是否正常。 */
-  private pads(state: RecorderViewState): RecorderItem[] {
-    const keys = Object.keys(DEFAULT_KEY_MAP).filter((key) => state.keyMap[key]);
-    return keys.map((key) => {
-      const drumId = state.keyMap[key];
-      const label = DRUM_LABELS[drumId as keyof typeof DRUM_LABELS] ?? drumId;
-      return new RecorderItem(
-        `${key.toUpperCase()}　${label}`,
+  private padGroups(state: RecorderViewState): RecorderItem[] {
+    if (state.armedRole === "drums") {
+      const keys = Object.keys(DEFAULT_KEY_MAP).filter((key) => state.keyMap[key]);
+      return [
+        group("鼓垫（点击试听）", "circuit-board", keys.map((key) => {
+          const drumId = state.keyMap[key];
+          const label = DRUM_LABELS[drumId as keyof typeof DRUM_LABELS] ?? drumId;
+          return new RecorderItem(`${key.toUpperCase()}　${label}`, "debug-stackframe-dot", {
+            command: "cursorDaw.padHit",
+            args: [key],
+            tooltip: `${drumId}`,
+          });
+        })),
+      ];
+    }
+    return pitchPadRows(state.octave).map((row) => group(
+      row.title,
+      "circuit-board",
+      row.keys.map((item) => new RecorderItem(
+        `${item.key.toUpperCase()}　${item.label}`,
         "debug-stackframe-dot",
         {
-          command: "cursorDrum.padHit",
-          args: [key],
-          tooltip: `${drumId}　按 ${key.toUpperCase()} 或点此试听`,
+          command: "cursorDaw.padHit",
+          args: [item.key],
         },
-      );
-    });
+      )),
+    ));
   }
 }

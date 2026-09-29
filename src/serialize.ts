@@ -91,3 +91,40 @@ export function formatScoreText(text: string): string {
 export function formatTrack(track: DawTrack, stepsPerBar: number): string {
   return track.rows.map((row) => formatRow(row.id, row.cells, stepsPerBar)).join("\n");
 }
+
+/** Write a hit into a named row (drum id or pitch), creating the row if needed. */
+export function writeHit(
+  text: string,
+  rowId: string,
+  stepIndex: number,
+  trackName?: string,
+): string {
+  const source = text.trim() ? text : emptyTemplate();
+  const session = parseSession(source);
+  const track = (trackName
+    ? session.tracks.find((item) => item.name === trackName)
+    : undefined) ?? session.tracks[0];
+  if (!track) return source;
+
+  let row = track.rows.find((item) => item.id.toLowerCase() === rowId.toLowerCase());
+  if (!row) {
+    const length = Math.max(
+      session.stepsPerBar * 2,
+      ...track.rows.map((item) => item.cells.length),
+      stepIndex + 1,
+    );
+    row = {
+      id: rowId,
+      cells: Array(length).fill("rest"),
+      lineIndex: 0,
+    };
+    track.rows.push(row);
+  }
+  while (row.cells.length <= stepIndex) row.cells.push("rest");
+  row.cells[stepIndex] = "hit";
+  return formatSessionText(session);
+}
+
+export function upsertRuler(text: string): string {
+  return text;
+}

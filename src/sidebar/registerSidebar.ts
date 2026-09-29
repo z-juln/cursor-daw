@@ -32,7 +32,6 @@ export interface SidebarHost {
   getPlaylistState(): PlaylistViewState;
   playScoreFile(absolutePath: string): Promise<void>;
   pauseScoreFile(absolutePath: string): Promise<void>;
-  selectKit(kitId: string): Promise<void>;
   syncLibrary(): Promise<void>;
 }
 
@@ -49,7 +48,7 @@ function folderRelativePath(item: FolderTreeItem | string | undefined): string {
 }
 
 const MANUALS: Record<string, { file: string; title: string }> = {
-  skill: { file: "agent/SKILL.md", title: "鼓谱格式手册" },
+  skill: { file: "agent/SKILL.md", title: "工程格式手册" },
   readme: { file: "README.md", title: "使用说明" },
 };
 
@@ -83,7 +82,7 @@ export function registerSidebar(
       });
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
-        void vscode.window.showErrorMessage(`创建鼓谱失败：${(error as Error).message}`);
+        void vscode.window.showErrorMessage(`创建工程失败：${(error as Error).message}`);
         return;
       }
       const fileName = sanitizeScoreName(creator.state.name);
@@ -117,7 +116,7 @@ export function registerSidebar(
     if (!picked) return undefined;
     if (picked.folder === "__new__") {
       const value = await vscode.window.showInputBox({
-        title: "新建目录（可嵌套，如 styles/rock）",
+        title: "新建目录（可嵌套，如 loops/styles/rock）",
         validateInput: (input) => {
           try {
             sanitizeFolderPath(input);
@@ -143,7 +142,7 @@ export function registerSidebar(
     return picked.folder;
   };
 
-  register("cursorDrum.openManual", async (which: string = "skill") => {
+  register("cursorDaw.openManual", async (which: string = "skill") => {
     const manual = MANUALS[which] ?? MANUALS.skill;
     const uri = vscode.Uri.joinPath(context.extensionUri, ...manual.file.split("/"));
     try {
@@ -152,70 +151,35 @@ export function registerSidebar(
       await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
     }
   });
-  register("cursorDrum.selectKit", async (kitId: string) => {
-    if (typeof kitId !== "string") return;
-    try {
-      await host.selectKit(kitId);
-      recorder.refresh();
-    } catch (error) {
-      void vscode.window.showErrorMessage(`切换鼓组失败：${(error as Error).message}`);
-    }
-  });
-  register("cursorDrum.pickKit", async () => {
-    const state = host.getRecorderState();
-    if (!state.padEnabled) {
-      void vscode.window.showInformationMessage("请先开启 Pad 模式");
-      return;
-    }
-    const picked = await vscode.window.showQuickPick(
-      state.kits.map((kit) => ({
-        label: kit.id === state.activeKitId ? `${kit.label}（当前）` : kit.label,
-        description: kit.kind === "wav" ? "WAV 采样" : "合成",
-        kitId: kit.id,
-        picked: kit.id === state.activeKitId,
-      })),
-      {
-        title: "Pad 鼓组",
-        placeHolder: "选择 Pad 敲击使用的鼓组",
-      },
-    );
-    if (!picked) return;
-    try {
-      await host.selectKit(picked.kitId);
-      recorder.refresh();
-    } catch (error) {
-      void vscode.window.showErrorMessage(`切换鼓组失败：${(error as Error).message}`);
-    }
-  });
-  register("cursorDrum.syncLibrary", async () => {
+  register("cursorDaw.syncLibrary", async () => {
     try {
       await host.syncLibrary();
       playlist.refresh();
     } catch (error) {
-      void vscode.window.showErrorMessage(`同步示例鼓谱失败：${(error as Error).message}`);
+      void vscode.window.showErrorMessage(`同步示例失败：${(error as Error).message}`);
     }
   });
-  register("cursorDrum.refreshLibrary", () => playlist.refresh());
-  register("cursorDrum.openLibraryScore", openScore);
-  register("cursorDrum.playLibraryScore", async (item: ScoreTreeItem) => {
+  register("cursorDaw.refreshLibrary", () => playlist.refresh());
+  register("cursorDaw.openLibraryScore", openScore);
+  register("cursorDaw.playLibraryScore", async (item: ScoreTreeItem) => {
     const target = itemPath(item);
     if (!target) return;
     try {
       await host.playScoreFile(target);
     } catch (error) {
-      void vscode.window.showErrorMessage(`播放鼓谱失败：${(error as Error).message}`);
+      void vscode.window.showErrorMessage(`播放失败：${(error as Error).message}`);
     }
   });
-  register("cursorDrum.pauseLibraryScore", async (item: ScoreTreeItem) => {
+  register("cursorDaw.pauseLibraryScore", async (item: ScoreTreeItem) => {
     const target = itemPath(item);
     if (!target) return;
     try {
       await host.pauseScoreFile(target);
     } catch (error) {
-      void vscode.window.showErrorMessage(`暂停鼓谱失败：${(error as Error).message}`);
+      void vscode.window.showErrorMessage(`暂停失败：${(error as Error).message}`);
     }
   });
-  register("cursorDrum.deleteLibraryScore", async (item: ScoreTreeItem) => {
+  register("cursorDaw.deleteLibraryScore", async (item: ScoreTreeItem) => {
     const target = itemPath(item);
     if (!target) return;
     const answer = await vscode.window.showWarningMessage(
@@ -228,14 +192,14 @@ export function registerSidebar(
       await deleteLibraryScore(root, target);
       playlist.refresh();
     } catch (error) {
-      void vscode.window.showErrorMessage(`删除鼓谱失败：${(error as Error).message}`);
+      void vscode.window.showErrorMessage(`删除失败：${(error as Error).message}`);
     }
   });
-  register("cursorDrum.createLibraryFolder", async (item?: FolderTreeItem) => {
+  register("cursorDaw.createLibraryFolder", async (item?: FolderTreeItem) => {
     const parent = folderRelativePath(item);
     const value = await vscode.window.showInputBox({
       title: parent ? `在 ${parent} 下新建目录` : "新建目录",
-      placeHolder: parent ? "子目录名" : "如 styles/rock",
+      placeHolder: parent ? "子目录名" : "如 loops/rock",
       validateInput: (input) => {
         try {
           sanitizeFolderSegment(input);
@@ -260,7 +224,7 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`创建目录失败：${(error as Error).message}`);
     }
   });
-  register("cursorDrum.renameLibraryFolder", async (item?: FolderTreeItem) => {
+  register("cursorDaw.renameLibraryFolder", async (item?: FolderTreeItem) => {
     if (!(item instanceof FolderTreeItem)) return;
     const currentName = item.relativePath.split("/").pop() ?? item.relativePath;
     const parent = item.relativePath.includes("/")
@@ -290,13 +254,13 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`重命名目录失败：${(error as Error).message}`);
     }
   });
-  register("cursorDrum.deleteLibraryFolder", async (item?: FolderTreeItem) => {
+  register("cursorDaw.deleteLibraryFolder", async (item?: FolderTreeItem) => {
     if (!(item instanceof FolderTreeItem)) return;
     const empty = await isLibraryFolderEmpty(root, item.relativePath);
     const answer = await vscode.window.showWarningMessage(
       empty
         ? `确定删除空目录 ${item.relativePath}？`
-        : `确定删除目录 ${item.relativePath} 及其中的全部鼓谱？此操作不可撤销。`,
+        : `确定删除目录 ${item.relativePath} 及其中的全部工程？此操作不可撤销。`,
       { modal: true },
       "删除",
     );
@@ -308,15 +272,15 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`删除目录失败：${(error as Error).message}`);
     }
   });
-  register("cursorDrum.newScoreInFolder", async (item?: FolderTreeItem) => {
+  register("cursorDaw.newScoreInFolder", async (item?: FolderTreeItem) => {
     const folder = folderRelativePath(item);
     creator.state.folder = folder;
     creator.refresh();
     await createScore(folder);
   });
-  register("cursorDrum.creatorSetName", async () => {
+  register("cursorDaw.creatorSetName", async () => {
     const value = await vscode.window.showInputBox({
-      title: "鼓谱名称",
+      title: "工程名称",
       value: creator.state.name,
       validateInput: (input) => {
         try {
@@ -332,13 +296,13 @@ export function registerSidebar(
       creator.refresh();
     }
   });
-  register("cursorDrum.creatorSetFolder", async () => {
+  register("cursorDaw.creatorSetFolder", async () => {
     const picked = await pickLibraryFolder("创建到哪个目录", creator.state.folder);
     if (picked === undefined) return;
     creator.state.folder = picked;
     creator.refresh();
   });
-  register("cursorDrum.creatorSetBpm", async () => {
+  register("cursorDaw.creatorSetBpm", async () => {
     const value = await vscode.window.showInputBox({
       title: "BPM（20–400）",
       value: String(creator.state.bpm),
@@ -354,7 +318,7 @@ export function registerSidebar(
       creator.refresh();
     }
   });
-  register("cursorDrum.creatorSetBars", async () => {
+  register("cursorDaw.creatorSetBars", async () => {
     const value = await vscode.window.showInputBox({
       title: "小节数（1–128）",
       value: String(creator.state.bars),
@@ -370,13 +334,13 @@ export function registerSidebar(
       creator.refresh();
     }
   });
-  register("cursorDrum.creatorCreate", () => createScore());
-  register("cursorDrum.newScore", () => createScore());
+  register("cursorDaw.creatorCreate", () => createScore());
+  register("cursorDaw.newScore", () => createScore());
 
   context.subscriptions.push(
-    vscode.window.registerTreeDataProvider("cursorDrum.playlist", playlist),
-    vscode.window.registerTreeDataProvider("cursorDrum.recorder", recorder),
-    vscode.window.registerTreeDataProvider("cursorDrum.creator", creator),
+    vscode.window.registerTreeDataProvider("cursorDaw.playlist", playlist),
+    vscode.window.registerTreeDataProvider("cursorDaw.recorder", recorder),
+    vscode.window.registerTreeDataProvider("cursorDaw.creator", creator),
   );
 
   return {

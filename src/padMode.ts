@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-const CONTEXT_KEY = "cursorDrum.padMode";
+const CONTEXT_KEY = "cursorDaw.padMode";
 
 export class PadMode {
   private on = false;

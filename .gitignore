@@ -2,3 +2,5 @@ node_modules
 dist
 *.vsix
 .superpowers/
+media/soundfonts/*.sf2
+media/soundfonts/*.sf3

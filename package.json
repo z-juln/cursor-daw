@@ -64,7 +64,7 @@
     "viewsWelcome": [
       {
         "view": "cursorDaw.playlist",
-        "contents": "谱库为空。\n[创建鼓谱](command:cursorDaw.newScore)"
+        "contents": "谱库为空。\n[创建工程](command:cursorDaw.newScore)"
       }
     ],
     "commands": [
@@ -122,16 +122,28 @@
         "title": "Cursor DAW: 启动音频引擎"
       },
       {
-        "command": "cursorDaw.selectKit",
-        "title": "Cursor DAW: 选择鼓组"
+        "command": "cursorDaw.pickTrack",
+        "title": "Cursor DAW: 切换乐器"
       },
       {
-        "command": "cursorDaw.pickKit",
-        "title": "Cursor DAW: 选择 Pad 鼓组"
+        "command": "cursorDaw.octaveUp",
+        "title": "Cursor DAW: 升八度"
+      },
+      {
+        "command": "cursorDaw.octaveDown",
+        "title": "Cursor DAW: 降八度"
+      },
+      {
+        "command": "cursorDaw.exportMidi",
+        "title": "Cursor DAW: 导出 MIDI"
+      },
+      {
+        "command": "cursorDaw.importMidi",
+        "title": "Cursor DAW: 导入 MIDI"
       },
       {
         "command": "cursorDaw.syncLibrary",
-        "title": "Cursor DAW: 同步示例鼓谱",
+        "title": "Cursor DAW: 同步示例工程",
         "icon": "$(cloud-download)"
       },
       {
@@ -141,21 +153,21 @@
       },
       {
         "command": "cursorDaw.openLibraryScore",
-        "title": "Cursor DAW: 打开鼓谱"
+        "title": "Cursor DAW: 打开工程"
       },
       {
         "command": "cursorDaw.playLibraryScore",
-        "title": "Cursor DAW: 播放鼓谱",
+        "title": "Cursor DAW: 播放工程",
         "icon": "$(play)"
       },
       {
         "command": "cursorDaw.pauseLibraryScore",
-        "title": "Cursor DAW: 暂停鼓谱",
+        "title": "Cursor DAW: 暂停工程",
         "icon": "$(debug-pause)"
       },
       {
         "command": "cursorDaw.deleteLibraryScore",
-        "title": "Cursor DAW: 删除鼓谱",
+        "title": "Cursor DAW: 删除工程",
         "icon": "$(trash)"
       },
       {
@@ -175,7 +187,7 @@
       },
       {
         "command": "cursorDaw.newScoreInFolder",
-        "title": "Cursor DAW: 在此目录创建鼓谱",
+        "title": "Cursor DAW: 在此目录创建工程",
         "icon": "$(new-file)"
       },
       {
@@ -200,7 +212,7 @@
       },
       {
         "command": "cursorDaw.creatorCreate",
-        "title": "Cursor DAW: 创建鼓谱"
+        "title": "Cursor DAW: 创建工程"
       }
     ],
     "menus": {
@@ -316,6 +328,48 @@
       },
       {
         "command": "cursorDaw.padHit",
+        "key": "z",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "z"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "x",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "x"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "c",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "c"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "v",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "v"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "b",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "b"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "n",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "n"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "m",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "m"
+      },
+      {
+        "command": "cursorDaw.padHit",
         "key": "a",
         "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "a"
@@ -346,6 +400,18 @@
       },
       {
         "command": "cursorDaw.padHit",
+        "key": "h",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "h"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "j",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "j"
+      },
+      {
+        "command": "cursorDaw.padHit",
         "key": "q",
         "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "q"
@@ -373,6 +439,18 @@
         "key": "t",
         "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "t"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "y",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "y"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "u",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "u"
       }
     ],
     "configuration": {
@@ -421,9 +499,9 @@
     "check": "tsc --noEmit",
     "watch": "node esbuild.mjs --watch",
     "test": "jest",
-    "verify:audio": "esbuild scripts/verifyAudio.ts --bundle --platform=node --format=cjs --external:node-web-audio-api --outfile=dist/verifyAudio.cjs --log-level=warning && node dist/verifyAudio.cjs",
-    "render:kits": "esbuild scripts/renderKitWavs.ts --bundle --platform=node --format=cjs --outfile=dist/renderKitWavs.cjs --log-level=warning && node dist/renderKitWavs.cjs",
-    "package": "node scripts/trimNative.mjs && vsce package"
+    "verify:audio": "esbuild scripts/verifyAudio.ts --bundle --platform=node --format=cjs --external:node-web-audio-api --external:spessasynth_core --external:stb-vorbis --outfile=dist/verifyAudio.cjs --log-level=warning && node dist/verifyAudio.cjs",
+    "fetch:sf2": "node scripts/fetchSf2.mjs",
+    "package": "node scripts/fetchSf2.mjs && node scripts/trimNative.mjs && vsce package"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
