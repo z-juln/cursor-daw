@@ -1,4 +1,7 @@
-import { ScheduledNote, Score } from "./types";
+import { canonicalDrumId } from "./drums";
+import { DEFAULT_CHANNEL, DEFAULT_PROGRAM, DRUM_TO_GM } from "./midi/gm";
+import { pitchToMidi } from "./pitch";
+import { Session, TimedNote, TrackRole } from "./types";
 
 export interface TimingContext {
   bpm: number;
@@ -28,25 +31,66 @@ export function stepTimeSec(context: TimingContext, step: number): number {
   return step * duration + swingDelay;
 }
 
-export function scheduleNotes(score: Score): ScheduledNote[] {
-  const notes: ScheduledNote[] = [];
-  score.tracks.forEach((track) => {
-    if (!track.canonicalId) return;
-    track.cells.forEach((cell, step) => {
-      const velocity = cell === "hit" ? 100 : cell === "accent" ? 127 : cell === "ghost" ? 50 : 0;
-      if (velocity > 0) {
-        notes.push({
-          timeSec: stepTimeSec(score, step),
-          drumId: track.canonicalId!,
-          velocity,
-        });
-      }
-    });
-  });
-  return notes.sort((left, right) => left.timeSec - right.timeSec);
+function resolveNote(role: TrackRole, rowId: string): number | null {
+  if (role === "drums") {
+    const drumId = canonicalDrumId(rowId);
+    if (!drumId) return null;
+    return DRUM_TO_GM[drumId] ?? null;
+  }
+  return pitchToMidi(rowId);
 }
 
-export function scoreDurationSec(score: Score): number {
-  const length = Math.max(0, ...score.tracks.map((track) => track.cells.length));
-  return length * stepDurationSec(score);
+function velocityOf(cell: string): number {
+  if (cell === "hit") return 100;
+  if (cell === "accent") return 127;
+  if (cell === "ghost") return 50;
+  return 0;
 }
+
+/** Schedule all tracks into timed MIDI notes (drums ignore hold length). */
+export function scheduleSession(session: Session): TimedNote[] {
+  const notes: TimedNote[] = [];
+  const stepSec = stepDurationSec(session);
+  for (const track of session.tracks) {
+    const program = track.program ?? DEFAULT_PROGRAM[track.role];
+    const channel = track.channel ?? DEFAULT_CHANNEL[track.role];
+    for (const row of track.rows) {
+      const note = resolveNote(track.role, row.id);
+      if (note === null) continue;
+      for (let step = 0; step < row.cells.length; step += 1) {
+        const cell = row.cells[step];
+        const velocity = velocityOf(cell);
+        if (velocity <= 0) continue;
+        let end = step + 1;
+        while (end < row.cells.length && row.cells[end] === "hold") end += 1;
+        const durationSec = track.role === "drums"
+          ? Math.min(0.15, stepSec)
+          : Math.max(stepSec * 0.9, (end - step) * stepSec);
+        notes.push({
+          trackName: track.name,
+          role: track.role,
+          note,
+          velocity,
+          timeSec: stepTimeSec(session, step),
+          durationSec,
+          channel,
+          program,
+        });
+        // Skip holds already consumed — next loop continues after this hit.
+      }
+    }
+  }
+  return notes.sort((left, right) => left.timeSec - right.timeSec
+    || left.note - right.note);
+}
+
+export function scoreDurationSec(session: Session): number {
+  const length = Math.max(
+    0,
+    ...session.tracks.flatMap((track) => track.rows.map((row) => row.cells.length)),
+  );
+  return length * stepDurationSec(session);
+}
+
+/** @deprecated */
+export const scheduleNotes = scheduleSession;

@@ -1,15 +1,31 @@
-import { canonicalDrumId } from "./drums";
-import { DEFAULT_KIT_ID, normalizeKitId } from "./kits/registry";
-import { HitKind, ParseWarning, Score, Track } from "./types";
+import { pitchToMidi } from "./pitch";
+import {
+  CellKind,
+  DawTrack,
+  ParseWarning,
+  Session,
+  TrackRole,
+} from "./types";
 
 const HEADER_RE = /^([A-Za-z][A-Za-z0-9_-]{0,15})\s*:\s*(.*)$/;
-const TRACK_RE = /^([A-Za-z][A-Za-z0-9_-]{0,15})(?:\s+|\s*(?=\|))(.*)$/;
+const TRACK_START_RE = /^track\s+([A-Za-z][A-Za-z0-9_-]{0,31})\s*$/i;
+const ROW_RE = /^([A-Za-z#][A-Za-z0-9#_^-]{0,15})(?:\s+|\s*(?=\|))(.*)$/;
 
-function cellKind(char: string, warnings: ParseWarning[], line: number): HitKind {
+const ROLES: TrackRole[] = ["drums", "keys", "guitar", "bass"];
+
+const DEFAULT_PLUGIN: Record<TrackRole, string> = {
+  drums: "drum.gm",
+  keys: "keys.gm",
+  guitar: "gtr.gm",
+  bass: "bass.gm",
+};
+
+function cellKind(char: string, warnings: ParseWarning[], line: number): CellKind {
   if (char === "." || char === "-" || char === "·") return "rest";
   if (char === "x" || char === "*") return "hit";
   if (char === "X") return "accent";
   if (char === "o") return "ghost";
+  if (char === "=") return "hold";
   warnings.push({ message: `未知格子字符 "${char}"，按休止处理`, line });
   return "rest";
 }
@@ -19,11 +35,11 @@ function parseGrid(
   stepsPerBar: number,
   warnings: ParseWarning[],
   line: number,
-): HitKind[] {
+): CellKind[] {
   const hasBars = raw.includes("|");
   let bars = hasBars
     ? raw.split("|").filter((part, index, all) =>
-        part.length > 0 || (index > 0 && index < all.length - 1))
+      part.length > 0 || (index > 0 && index < all.length - 1))
     : [raw.trim()];
 
   if (!hasBars) {
@@ -48,80 +64,147 @@ function parseGrid(
   });
 }
 
-export function parseScore(text: string): Score {
+function inferRole(name: string): TrackRole {
+  const lower = name.toLowerCase();
+  if (lower.includes("drum") || lower === "perc" || lower === "beat") return "drums";
+  if (lower.includes("bass")) return "bass";
+  if (lower.includes("gtr") || lower.includes("guitar")) return "guitar";
+  return "keys";
+}
+
+function parseRole(raw: string): TrackRole | null {
+  const value = raw.trim().toLowerCase() as TrackRole;
+  return ROLES.includes(value) ? value : null;
+}
+
+export function parseSession(text: string): Session {
   let bpm = 120;
   let meter = "4/4";
   let stepsPerBar = 16;
   let swing = 0;
-  let kit = DEFAULT_KIT_ID;
   let unsupportedVersion = false;
-  let sawTrack = false;
   const warnings: ParseWarning[] = [];
-  const tracks = new Map<string, Track>();
+  const tracks: DawTrack[] = [];
+  let current: DawTrack | undefined;
+  let inTracks = false;
 
   text.split("\n").forEach((sourceLine, lineIndex) => {
     const line = sourceLine.replace(/\r$/, "");
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) return;
+    if (!trimmed) return;
 
-    const header = !sawTrack ? line.match(HEADER_RE) : null;
+    if (trimmed.startsWith("#")) {
+      const version = trimmed.match(/cursor-daw\s+(\d+)/i);
+      if (version && version[1] !== "1") unsupportedVersion = true;
+      return;
+    }
+
+    const trackStart = trimmed.match(TRACK_START_RE);
+    if (trackStart) {
+      inTracks = true;
+      current = {
+        name: trackStart[1],
+        role: inferRole(trackStart[1]),
+        plugin: "",
+        rows: [],
+      };
+      current.plugin = DEFAULT_PLUGIN[current.role];
+      tracks.push(current);
+      return;
+    }
+
+    const header = line.match(HEADER_RE);
     if (header) {
       const key = header[1].toLowerCase();
       const value = header[2].trim();
-      if (key === "bpm") {
-        const parsed = Number(value);
-        if (Number.isFinite(parsed) && parsed > 0) bpm = parsed;
-        else warnings.push({ message: "bpm 无效，使用 120", line: lineIndex });
-      } else if (key === "meter") {
-        meter = value || "4/4";
-      } else if (key === "steps") {
-        const parsed = Number(value);
-        if (Number.isInteger(parsed) && parsed > 0) stepsPerBar = parsed;
-        else warnings.push({ message: "steps 无效，使用 16", line: lineIndex });
-      } else if (key === "swing") {
-        const parsed = Number(value);
-        if (Number.isFinite(parsed)) swing = Math.min(100, Math.max(0, parsed));
-        else warnings.push({ message: "swing 无效，使用 0", line: lineIndex });
-      } else if (key === "version") {
-        unsupportedVersion = value !== "1";
-      } else if (key === "kit") {
-        const resolved = normalizeKitId(value || DEFAULT_KIT_ID);
-        kit = resolved.kitId;
-        if (resolved.fallback) {
-          warnings.push({ message: `未知 kit "${value}"，使用 ${DEFAULT_KIT_ID}`, line: lineIndex });
+      if (!inTracks) {
+        if (key === "bpm") {
+          const parsed = Number(value);
+          if (Number.isFinite(parsed) && parsed > 0) bpm = parsed;
+          else warnings.push({ message: "bpm 无效，使用 120", line: lineIndex });
+        } else if (key === "meter") {
+          meter = value || "4/4";
+        } else if (key === "steps") {
+          const parsed = Number(value);
+          if (Number.isInteger(parsed) && parsed > 0) stepsPerBar = parsed;
+          else warnings.push({ message: "steps 无效，使用 16", line: lineIndex });
+        } else if (key === "swing") {
+          const parsed = Number(value);
+          if (Number.isFinite(parsed)) swing = Math.min(100, Math.max(0, parsed));
+          else warnings.push({ message: "swing 无效，使用 0", line: lineIndex });
+        } else if (key === "version") {
+          unsupportedVersion = value !== "1";
+        } else {
+          warnings.push({ message: `未知文件头 "${key}"`, line: lineIndex });
         }
+        return;
+      }
+
+      if (!current) {
+        warnings.push({ message: "轨属性出现在 track 之前", line: lineIndex });
+        return;
+      }
+      if (key === "role") {
+        const role = parseRole(value);
+        if (!role) {
+          warnings.push({ message: `未知 role "${value}"，使用 keys`, line: lineIndex });
+          current.role = "keys";
+        } else {
+          current.role = role;
+        }
+        if (!current.plugin || current.plugin.endsWith(".gm")) {
+          current.plugin = DEFAULT_PLUGIN[current.role];
+        }
+      } else if (key === "plugin") {
+        current.plugin = value || DEFAULT_PLUGIN[current.role];
+      } else if (key === "program") {
+        const parsed = Number(value);
+        if (Number.isInteger(parsed) && parsed >= 0 && parsed <= 127) current.program = parsed;
+        else warnings.push({ message: "program 无效", line: lineIndex });
+      } else if (key === "channel") {
+        const parsed = Number(value);
+        if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 16) current.channel = parsed - 1;
+        else warnings.push({ message: "channel 无效（1–16）", line: lineIndex });
       } else {
-        warnings.push({ message: `未知文件头 "${key}"`, line: lineIndex });
+        warnings.push({ message: `未知轨属性 "${key}"`, line: lineIndex });
       }
       return;
     }
 
-    const match = line.match(TRACK_RE);
-    if (!match) {
+    const row = line.match(ROW_RE);
+    if (!row) {
       warnings.push({ message: "无法解析此行", line: lineIndex });
       return;
     }
-    sawTrack = true;
-    const id = match[1].toLowerCase();
-    const track: Track = {
-      id,
-      canonicalId: canonicalDrumId(id),
-      cells: parseGrid(
-        match[2].trim(),
-        stepsPerBar,
-        warnings,
-        lineIndex,
-      ),
-      lineIndex,
-    };
-    tracks.delete(id);
-    tracks.set(id, track);
+    if (!current) {
+      // Legacy single-block: invent a drums track for drum-like rows, else keys.
+      const id = row[1];
+      const role = pitchToMidi(id) !== null ? "keys" : "drums";
+      current = {
+        name: role === "drums" ? "drums" : "keys",
+        role,
+        plugin: DEFAULT_PLUGIN[role],
+        rows: [],
+      };
+      tracks.push(current);
+      inTracks = true;
+    }
+    const id = row[1];
+    const cells = parseGrid(row[2].trim(), stepsPerBar, warnings, lineIndex);
+    const existing = current.rows.findIndex((item) => item.id.toLowerCase() === id.toLowerCase());
+    const gridRow = { id, cells, lineIndex };
+    if (existing >= 0) current.rows[existing] = gridRow;
+    else current.rows.push(gridRow);
   });
 
-  const result = [...tracks.values()];
-  const maxLength = result.reduce((max, track) => Math.max(max, track.cells.length), 0);
-  result.forEach((track) => {
-    while (track.cells.length < maxLength) track.cells.push("rest");
+  const maxLength = tracks.reduce(
+    (max, track) => Math.max(max, ...track.rows.map((row) => row.cells.length), 0),
+    0,
+  );
+  tracks.forEach((track) => {
+    track.rows.forEach((row) => {
+      while (row.cells.length < maxLength) row.cells.push("rest");
+    });
   });
 
   return {
@@ -129,9 +212,11 @@ export function parseScore(text: string): Score {
     meter,
     stepsPerBar,
     swing,
-    kit,
-    tracks: result,
+    tracks,
     warnings,
     unsupportedVersion,
   };
 }
+
+/** @deprecated Use parseSession */
+export const parseScore = parseSession;
