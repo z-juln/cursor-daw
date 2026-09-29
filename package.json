@@ -53,7 +53,8 @@
         },
         {
           "id": "cursorDaw.recorder",
-          "name": "键盘录制"
+          "name": "键盘录制",
+          "type": "webview"
         },
         {
           "id": "cursorDaw.creator",
@@ -124,6 +125,10 @@
       {
         "command": "cursorDaw.pickTrack",
         "title": "Cursor DAW: 切换乐器"
+      },
+      {
+        "command": "cursorDaw.seek",
+        "title": "Cursor DAW: Seek"
       },
       {
         "command": "cursorDaw.octaveUp",

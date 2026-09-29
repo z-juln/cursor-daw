@@ -339,7 +339,9 @@ export function registerSidebar(
 
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider("cursorDaw.playlist", playlist),
-    vscode.window.registerTreeDataProvider("cursorDaw.recorder", recorder),
+    vscode.window.registerWebviewViewProvider("cursorDaw.recorder", recorder, {
+      webviewOptions: { retainContextWhenHidden: true },
+    }),
     vscode.window.registerTreeDataProvider("cursorDaw.creator", creator),
   );
 

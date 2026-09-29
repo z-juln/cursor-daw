@@ -42,6 +42,10 @@ export class DawEngine {
     this.inner.play(fromSec);
   }
 
+  seek(sec: number): void {
+    this.inner.seek(sec);
+  }
+
   pause(): void {
     this.inner.pause();
   }

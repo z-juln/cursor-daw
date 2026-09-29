@@ -172,6 +172,17 @@ export class SoundfontEngine {
     }, 50);
   }
 
+  /** 拖拽进度：播放中重定位；暂停时只更新偏移。 */
+  seek(sec: number): void {
+    const offset = Math.max(0, Math.min(sec, this.durationSec || sec));
+    if (this.playing) {
+      this.play(offset);
+      return;
+    }
+    this.offsetSec = offset;
+    this.onTick?.(offset);
+  }
+
   pause(): void {
     if (!this.playing) return;
     this.offsetSec = this.positionSec;

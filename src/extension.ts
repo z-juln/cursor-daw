@@ -368,6 +368,38 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     octave = Math.max(min, octave - 1);
     updateStatus();
   });
+  register("cursorDaw.seek", (sec: number) => {
+    if (!source || !Number.isFinite(sec)) return;
+    const target = Math.max(0, Math.min(Number(sec), currentDuration || 0));
+    const wall = nowSec();
+    currentPosition = target;
+    if (transport.status === "playing") {
+      transport = {
+        ...transport,
+        status: "playing",
+        anchorScoreSec: target,
+        anchorWallSec: wall,
+      };
+      withAudio(() => audio.seek(target));
+    } else if (transport.status === "paused") {
+      transport = {
+        ...transport,
+        anchorScoreSec: target,
+        anchorWallSec: wall,
+      };
+      withAudio(() => audio.seek(target));
+    } else {
+      // stopped：预览位置，下次播放从此处开始可再点播放
+      transport = {
+        ...transport,
+        status: "paused",
+        anchorScoreSec: target,
+        anchorWallSec: wall,
+      };
+      withAudio(() => audio.seek(target));
+    }
+    updateStatus();
+  });
   register("cursorDaw.exportMidi", async () => {
     const text = currentSource()?.text;
     if (!text) {
@@ -416,13 +448,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     getRecorderState: () => {
       const { bpm, label } = positionLabel();
       const session = currentSession();
-      const track = armedTrack();
       return {
         padEnabled: padMode.enabled,
         recordingEnabled: recordingMode.enabled,
         playing: transport.status === "playing",
         bpm,
         position: label,
+        positionSec: currentPosition,
+        durationSec: currentDuration,
         audioState: audioBroken
           ? "启动失败"
           : audio.contextState === "closed" ? "未启动" : audio.contextState,
