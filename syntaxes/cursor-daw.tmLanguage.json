@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Cursor DAW",
+  "scopeName": "source.cursor-daw",
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.cursor-daw",
+      "match": "#.*$"
+    },
+    {
+      "name": "keyword.control.track.cursor-daw",
+      "match": "^track\\b"
+    },
+    {
+      "name": "keyword.other.header.cursor-daw",
+      "match": "^[A-Za-z][A-Za-z0-9_-]*(?=\\s*:)"
+    },
+    {
+      "name": "variable.other.row.cursor-daw",
+      "match": "^[A-Za-z#][A-Za-z0-9#_^-]*(?=\\s+|\\|)"
+    },
+    {
+      "name": "markup.inserted.hit.cursor-daw",
+      "match": "[xXo*]"
+    },
+    {
+      "name": "markup.inserted.hold.cursor-daw",
+      "match": "="
+    },
+    {
+      "name": "comment.punctuation.rest.cursor-daw",
+      "match": "[.\\-·]"
+    },
+    {
+      "name": "punctuation.separator.bar.cursor-daw",
+      "match": "\\|"
+    }
+  ]
+}

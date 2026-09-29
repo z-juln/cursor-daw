@@ -1,9 +1,9 @@
 {
-  "name": "cursor-drum",
-  "displayName": "Cursor Drum",
-  "description": "纯文本鼓组：键盘录入、网格乐谱、当前文件播放",
-  "version": "0.9.3",
-  "publisher": "cursor-drum",
+  "name": "cursor-daw",
+  "displayName": "Cursor DAW",
+  "description": "纯文本多轨 DAW：鼓/钢琴/吉他/贝斯、MIDI+SoundFont 播放",
+  "version": "1.0.0",
+  "publisher": "cursor-daw",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -11,383 +11,383 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:cursor-drum",
+    "onLanguage:cursor-daw",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
       {
-        "id": "cursor-drum",
+        "id": "cursor-daw",
         "aliases": [
-          "Cursor Drum",
-          "drum"
+          "Cursor DAW",
+          "daw"
         ],
         "extensions": [
-          ".drum"
+          ".daw"
         ],
         "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
       {
-        "language": "cursor-drum",
-        "scopeName": "source.cursor-drum",
-        "path": "./syntaxes/cursor-drum.tmLanguage.json"
+        "language": "cursor-daw",
+        "scopeName": "source.cursor-daw",
+        "path": "./syntaxes/cursor-daw.tmLanguage.json"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "cursorDrum",
-          "title": "Cursor Drum",
-          "icon": "media/drum.svg"
+          "id": "cursorDaw",
+          "title": "Cursor DAW",
+          "icon": "media/daw.svg"
         }
       ]
     },
     "views": {
-      "cursorDrum": [
+      "cursorDaw": [
         {
-          "id": "cursorDrum.playlist",
+          "id": "cursorDaw.playlist",
           "name": "播放列表"
         },
         {
-          "id": "cursorDrum.recorder",
+          "id": "cursorDaw.recorder",
           "name": "键盘录制"
         },
         {
-          "id": "cursorDrum.creator",
+          "id": "cursorDaw.creator",
           "name": "创建"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "cursorDrum.playlist",
-        "contents": "谱库为空。\n[创建鼓谱](command:cursorDrum.newScore)"
+        "view": "cursorDaw.playlist",
+        "contents": "谱库为空。\n[创建鼓谱](command:cursorDaw.newScore)"
       }
     ],
     "commands": [
       {
-        "command": "cursorDrum.playPause",
-        "title": "Cursor Drum: Play/Pause"
+        "command": "cursorDaw.playPause",
+        "title": "Cursor DAW: Play/Pause"
       },
       {
-        "command": "cursorDrum.restart",
-        "title": "Cursor Drum: Restart"
+        "command": "cursorDaw.restart",
+        "title": "Cursor DAW: Restart"
       },
       {
-        "command": "cursorDrum.stop",
-        "title": "Cursor Drum: Stop"
+        "command": "cursorDaw.stop",
+        "title": "Cursor DAW: Stop"
       },
       {
-        "command": "cursorDrum.enablePadMode",
-        "title": "Cursor Drum: 开启 Pad 模式",
-        "category": "Cursor Drum"
+        "command": "cursorDaw.enablePadMode",
+        "title": "Cursor DAW: 开启 Pad 模式",
+        "category": "Cursor DAW"
       },
       {
-        "command": "cursorDrum.togglePadMode",
-        "title": "Cursor Drum: 切换 Pad 模式",
-        "category": "Cursor Drum"
+        "command": "cursorDaw.togglePadMode",
+        "title": "Cursor DAW: 切换 Pad 模式",
+        "category": "Cursor DAW"
       },
       {
-        "command": "cursorDrum.exitPadMode",
-        "title": "Cursor Drum: 退出 Pad 模式",
-        "category": "Cursor Drum"
+        "command": "cursorDaw.exitPadMode",
+        "title": "Cursor DAW: 退出 Pad 模式",
+        "category": "Cursor DAW"
       },
       {
-        "command": "cursorDrum.insertRuler",
-        "title": "Cursor Drum: Insert Ruler"
+        "command": "cursorDaw.insertRuler",
+        "title": "Cursor DAW: Insert Ruler"
       },
       {
-        "command": "cursorDrum.formatScore",
-        "title": "Cursor Drum: Format Score"
+        "command": "cursorDaw.formatScore",
+        "title": "Cursor DAW: Format Score"
       },
       {
-        "command": "cursorDrum.newScore",
-        "title": "Cursor Drum: New Score",
+        "command": "cursorDaw.newScore",
+        "title": "Cursor DAW: New Score",
         "icon": "$(new-file)"
       },
       {
-        "command": "cursorDrum.padHit",
-        "title": "Cursor Drum: Pad Hit"
+        "command": "cursorDaw.padHit",
+        "title": "Cursor DAW: Pad Hit"
       },
       {
-        "command": "cursorDrum.openManual",
-        "title": "Cursor Drum: 打开说明书",
+        "command": "cursorDaw.openManual",
+        "title": "Cursor DAW: 打开说明书",
         "icon": "$(book)"
       },
       {
-        "command": "cursorDrum.warmUpAudio",
-        "title": "Cursor Drum: 启动音频引擎"
+        "command": "cursorDaw.warmUpAudio",
+        "title": "Cursor DAW: 启动音频引擎"
       },
       {
-        "command": "cursorDrum.selectKit",
-        "title": "Cursor Drum: 选择鼓组"
+        "command": "cursorDaw.selectKit",
+        "title": "Cursor DAW: 选择鼓组"
       },
       {
-        "command": "cursorDrum.pickKit",
-        "title": "Cursor Drum: 选择 Pad 鼓组"
+        "command": "cursorDaw.pickKit",
+        "title": "Cursor DAW: 选择 Pad 鼓组"
       },
       {
-        "command": "cursorDrum.syncLibrary",
-        "title": "Cursor Drum: 同步示例鼓谱",
+        "command": "cursorDaw.syncLibrary",
+        "title": "Cursor DAW: 同步示例鼓谱",
         "icon": "$(cloud-download)"
       },
       {
-        "command": "cursorDrum.refreshLibrary",
-        "title": "Cursor Drum: 刷新播放列表",
+        "command": "cursorDaw.refreshLibrary",
+        "title": "Cursor DAW: 刷新播放列表",
         "icon": "$(refresh)"
       },
       {
-        "command": "cursorDrum.openLibraryScore",
-        "title": "Cursor Drum: 打开鼓谱"
+        "command": "cursorDaw.openLibraryScore",
+        "title": "Cursor DAW: 打开鼓谱"
       },
       {
-        "command": "cursorDrum.playLibraryScore",
-        "title": "Cursor Drum: 播放鼓谱",
+        "command": "cursorDaw.playLibraryScore",
+        "title": "Cursor DAW: 播放鼓谱",
         "icon": "$(play)"
       },
       {
-        "command": "cursorDrum.pauseLibraryScore",
-        "title": "Cursor Drum: 暂停鼓谱",
+        "command": "cursorDaw.pauseLibraryScore",
+        "title": "Cursor DAW: 暂停鼓谱",
         "icon": "$(debug-pause)"
       },
       {
-        "command": "cursorDrum.deleteLibraryScore",
-        "title": "Cursor Drum: 删除鼓谱",
+        "command": "cursorDaw.deleteLibraryScore",
+        "title": "Cursor DAW: 删除鼓谱",
         "icon": "$(trash)"
       },
       {
-        "command": "cursorDrum.createLibraryFolder",
-        "title": "Cursor Drum: 新建目录",
+        "command": "cursorDaw.createLibraryFolder",
+        "title": "Cursor DAW: 新建目录",
         "icon": "$(new-folder)"
       },
       {
-        "command": "cursorDrum.renameLibraryFolder",
-        "title": "Cursor Drum: 重命名目录",
+        "command": "cursorDaw.renameLibraryFolder",
+        "title": "Cursor DAW: 重命名目录",
         "icon": "$(edit)"
       },
       {
-        "command": "cursorDrum.deleteLibraryFolder",
-        "title": "Cursor Drum: 删除目录",
+        "command": "cursorDaw.deleteLibraryFolder",
+        "title": "Cursor DAW: 删除目录",
         "icon": "$(trash)"
       },
       {
-        "command": "cursorDrum.newScoreInFolder",
-        "title": "Cursor Drum: 在此目录创建鼓谱",
+        "command": "cursorDaw.newScoreInFolder",
+        "title": "Cursor DAW: 在此目录创建鼓谱",
         "icon": "$(new-file)"
       },
       {
-        "command": "cursorDrum.creatorSetFolder",
-        "title": "Cursor Drum: 设置创建目录"
+        "command": "cursorDaw.creatorSetFolder",
+        "title": "Cursor DAW: 设置创建目录"
       },
       {
-        "command": "cursorDrum.toggleRecording",
-        "title": "Cursor Drum: 切换录制"
+        "command": "cursorDaw.toggleRecording",
+        "title": "Cursor DAW: 切换录制"
       },
       {
-        "command": "cursorDrum.creatorSetName",
-        "title": "Cursor Drum: 设置名称"
+        "command": "cursorDaw.creatorSetName",
+        "title": "Cursor DAW: 设置名称"
       },
       {
-        "command": "cursorDrum.creatorSetBpm",
-        "title": "Cursor Drum: 设置 BPM"
+        "command": "cursorDaw.creatorSetBpm",
+        "title": "Cursor DAW: 设置 BPM"
       },
       {
-        "command": "cursorDrum.creatorSetBars",
-        "title": "Cursor Drum: 设置小节数"
+        "command": "cursorDaw.creatorSetBars",
+        "title": "Cursor DAW: 设置小节数"
       },
       {
-        "command": "cursorDrum.creatorCreate",
-        "title": "Cursor Drum: 创建鼓谱"
+        "command": "cursorDaw.creatorCreate",
+        "title": "Cursor DAW: 创建鼓谱"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "cursorDrum.refreshLibrary",
-          "when": "view == cursorDrum.playlist",
+          "command": "cursorDaw.refreshLibrary",
+          "when": "view == cursorDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDrum.syncLibrary",
-          "when": "view == cursorDrum.playlist",
+          "command": "cursorDaw.syncLibrary",
+          "when": "view == cursorDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDrum.newScore",
-          "when": "view == cursorDrum.playlist",
+          "command": "cursorDaw.newScore",
+          "when": "view == cursorDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDrum.createLibraryFolder",
-          "when": "view == cursorDrum.playlist",
+          "command": "cursorDaw.createLibraryFolder",
+          "when": "view == cursorDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDrum.openManual",
-          "when": "view == cursorDrum.playlist",
+          "command": "cursorDaw.openManual",
+          "when": "view == cursorDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDrum.openManual",
-          "when": "view == cursorDrum.recorder",
+          "command": "cursorDaw.openManual",
+          "when": "view == cursorDaw.recorder",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "cursorDrum.playLibraryScore",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.score",
+          "command": "cursorDaw.playLibraryScore",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.score",
           "group": "inline"
         },
         {
-          "command": "cursorDrum.playLibraryScore",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.scorePaused",
+          "command": "cursorDaw.playLibraryScore",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.scorePaused",
           "group": "inline"
         },
         {
-          "command": "cursorDrum.pauseLibraryScore",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.scorePlaying",
+          "command": "cursorDaw.pauseLibraryScore",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.scorePlaying",
           "group": "inline"
         },
         {
-          "command": "cursorDrum.deleteLibraryScore",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.score",
+          "command": "cursorDaw.deleteLibraryScore",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.score",
           "group": "2_destructive"
         },
         {
-          "command": "cursorDrum.deleteLibraryScore",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.scorePaused",
+          "command": "cursorDaw.deleteLibraryScore",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.scorePaused",
           "group": "2_destructive"
         },
         {
-          "command": "cursorDrum.newScoreInFolder",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
+          "command": "cursorDaw.newScoreInFolder",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
           "group": "1_create"
         },
         {
-          "command": "cursorDrum.createLibraryFolder",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
+          "command": "cursorDaw.createLibraryFolder",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
           "group": "1_create"
         },
         {
-          "command": "cursorDrum.renameLibraryFolder",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
+          "command": "cursorDaw.renameLibraryFolder",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
           "group": "2_modify"
         },
         {
-          "command": "cursorDrum.deleteLibraryFolder",
-          "when": "view == cursorDrum.playlist && viewItem == cursorDrum.folder",
+          "command": "cursorDaw.deleteLibraryFolder",
+          "when": "view == cursorDaw.playlist && viewItem == cursorDaw.folder",
           "group": "2_destructive"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "cursorDrum.playPause",
+        "command": "cursorDaw.playPause",
         "key": "ctrl+enter",
         "mac": "cmd+enter",
-        "when": "editorLangId == cursor-drum"
+        "when": "editorLangId == cursor-daw"
       },
       {
-        "command": "cursorDrum.restart",
+        "command": "cursorDaw.restart",
         "key": "ctrl+shift+enter",
         "mac": "cmd+shift+enter",
-        "when": "editorLangId == cursor-drum"
+        "when": "editorLangId == cursor-daw"
       },
       {
-        "command": "cursorDrum.togglePadMode",
+        "command": "cursorDaw.togglePadMode",
         "key": "ctrl+d",
         "mac": "cmd+d",
         "when": "!inputFocus && !editorTextFocus"
       },
       {
-        "command": "cursorDrum.togglePadMode",
+        "command": "cursorDaw.togglePadMode",
         "key": "ctrl+'",
         "mac": "cmd+'",
-        "when": "editorLangId == cursor-drum && !inputFocus"
+        "when": "editorLangId == cursor-daw && !inputFocus"
       },
       {
-        "command": "cursorDrum.exitPadMode",
+        "command": "cursorDaw.exitPadMode",
         "key": "escape",
-        "when": "cursorDrum.padMode && !inputFocus"
+        "when": "cursorDaw.padMode && !inputFocus"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "a",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "a"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "s",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "s"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "d",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "d"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "f",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "f"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "g",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "g"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "q",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "q"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "w",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "w"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "e",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "e"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "r",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "r"
       },
       {
-        "command": "cursorDrum.padHit",
+        "command": "cursorDaw.padHit",
         "key": "t",
-        "when": "cursorDrum.padMode && !inputFocus || cursorDrum.padMode && editorTextFocus && editorLangId == cursor-drum",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "t"
       }
     ],
     "configuration": {
-      "title": "Cursor Drum",
+      "title": "Cursor DAW",
       "properties": {
-        "cursorDrum.fileExtensions": {
+        "cursorDaw.fileExtensions": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "default": [
-            "drum"
+            "daw"
           ]
         },
-        "cursorDrum.keyMap": {
+        "cursorDaw.keyMap": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -405,11 +405,11 @@
             "t": "ride"
           }
         },
-        "cursorDrum.loop": {
+        "cursorDaw.loop": {
           "type": "boolean",
           "default": true
         },
-        "cursorDrum.padModeOnOpen": {
+        "cursorDaw.padModeOnOpen": {
           "type": "boolean",
           "default": false
         }
