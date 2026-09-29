@@ -726,7 +726,7 @@
     "test": "jest",
     "verify:audio": "esbuild scripts/verifyAudio.ts --bundle --platform=node --format=cjs --external:node-web-audio-api --external:spessasynth_core --external:stb-vorbis --outfile=dist/verifyAudio.cjs --log-level=warning && node dist/verifyAudio.cjs",
     "fetch:sf2": "node scripts/fetchSf2.mjs",
-    "package": "node scripts/fetchSf2.mjs && node scripts/trimNative.mjs && npx @vscode/vsce package --allow-missing-repository --no-rewrite-relative-links --skip-license"
+    "package": "node scripts/fetchSf2.mjs && node scripts/trimNative.mjs && npx @vscode/vsce package --no-rewrite-relative-links --skip-license"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
@@ -742,5 +742,10 @@
     "@vscode/codicons": "^0.0.46-24",
     "node-web-audio-api": "^2.2.0",
     "spessasynth_core": "^4.3.22"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/z-juln/vs-daw.git"
+  },
+  "icon": "media/icon.png"
 }
