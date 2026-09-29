@@ -493,6 +493,216 @@
         "key": "u",
         "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
         "args": "u"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+z",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "z#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+x",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "x#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+c",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "c#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+v",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "v#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+b",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "b#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+n",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "n#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+m",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "m#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+a",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "a#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+s",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "s#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+d",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "d#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+f",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "f#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+g",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "g#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+h",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "h#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+j",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "j#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+q",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "q#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+w",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "w#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+e",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "e#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+r",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "r#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+t",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "t#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+y",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "y#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+u",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "u#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "1",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "1"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "2",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "2"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "3",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "3"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "4",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "4"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "5",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "5"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "6",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "6"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "7",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "7"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+1",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "1#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+2",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "2#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+3",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "3#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+4",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "4#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+5",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "5#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+6",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "6#"
+      },
+      {
+        "command": "cursorDaw.padHit",
+        "key": "shift+7",
+        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "args": "7#"
       }
     ],
     "configuration": {

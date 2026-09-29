@@ -1,4 +1,5 @@
 import { midiToPitch } from "../pitch";
+import { sortTrackRows } from "../serialize";
 import { CellKind, DawTrack, Session, TrackRole } from "../types";
 import { velocityToCell } from "../velocity";
 import { GM_TO_DRUM, roleFromProgram } from "./gm";
@@ -167,14 +168,16 @@ export function decodeMidiToSession(bytes: Uint8Array): Session {
         if (role !== "drums" && cells[step] === "rest") cells[step] = "hold";
       }
     }
-    tracks.push({
+    const track = {
       name,
       role,
       plugin: PLUGIN[role],
       program: sample.program,
       channel: sample.channel,
       rows: [...rows.entries()].map(([id, cells], lineIndex) => ({ id, cells, lineIndex })),
-    });
+    };
+    sortTrackRows(track);
+    tracks.push(track);
   }
 
   return {

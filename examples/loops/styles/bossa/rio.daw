@@ -4,11 +4,10 @@ meter: 4/4
 steps: 16
 swing: 10
 
-# Bossa：典型切分底鼓 + 叮叮镲 cascara 简化
 track drums
 role: drums
 plugin: drum.gm
-kick   |x..x.x..x.x..x.x.|x..x.x..x.x..x.x.|
+kick   |x..x.x..x.x..x.x|x..x.x..x.x..x.x|
 snare  |....o.......o...|....o.......o...|
 ch     |................|................|
 oh     |................|................|

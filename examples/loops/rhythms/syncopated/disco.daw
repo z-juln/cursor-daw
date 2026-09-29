@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 8
 
-# 切分节奏：底鼓错位，军鼓仍 2/4
 track drums
 role: drums
 plugin: drum.gm

@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 0
 
-# 复合节奏：底鼓三连 feel（每 5 个 sixteen 近似 3 对 4）
 track drums
 role: drums
 plugin: drum.gm

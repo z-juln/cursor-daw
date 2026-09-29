@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 0
 
-# House：四踩 + 拍手 2/4 + 反拍开镲
 track drums
 role: drums
 plugin: drum.gm

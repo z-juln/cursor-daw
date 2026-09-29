@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 12
 
-# Reggae one drop：kick+snare 同在第 3 拍，踩镲 skank
 track drums
 role: drums
 plugin: drum.gm

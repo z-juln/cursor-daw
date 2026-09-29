@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 0
 
-# Half-time：每小节底鼓 1 下，军鼓在第 3 拍
 track drums
 role: drums
 plugin: drum.gm

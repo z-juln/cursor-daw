@@ -10,6 +10,8 @@
 
 ## 文件格式（`.daw`）
 
+音高轨行序：**高音在上、低音在下**（钢琴卷帘方向）。格式化 / 导出 / MIDI 导入都会按此排序。
+
 ```text
 # cursor-daw 1
 bpm: 120
@@ -63,3 +65,5 @@ F5 启动 Extension Development Host。安装：`npm run package` 后 Install fr
 - Play/Pause：`Cmd/Ctrl+Enter`
 - Pad 切换：`Cmd+D`（非编辑器）/ `Cmd+'`（`.daw` 编辑器）
 - 退出 Pad：`Esc`
+- Pad 半音：`Shift` + 白键（如 `Shift+G` → `G#`；`E`/`B` 升半音为下一白键）
+- 钢琴 Pad（默认）：`ZXCVBNM` C3–B3 · `ASDFGHJ` C4–B4 · `QWERTYU` C5–B5 · `1234567` C6–B6

@@ -4,8 +4,6 @@ meter: 4/4
 steps: 16
 swing: 0
 
-#        1               2
-#        1e&a2e&a3e&a4e&a1e&a2e&a3e&a4e&a
 track drums
 role: drums
 plugin: drum.gm

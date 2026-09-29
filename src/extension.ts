@@ -72,11 +72,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   let armedFallbackRole: TrackRole = "drums";
   /**
    * Pad 基准八度（低排 zxcvbnm 的 C）。
-   * 三排共跨 3 个八度：钢琴从 C4（中央 C）；吉他 C2；贝斯 C1。
+   * 钢琴四排 C3–C6（含数字排）；吉他/贝斯三排，自 C2 / C1 起。
    */
   const DEFAULT_OCTAVE: Record<TrackRole, number> = {
     drums: 4,
-    keys: 4,
+    keys: 3,
     guitar: 2,
     bass: 1,
   };
@@ -443,7 +443,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       if (note === undefined) return undefined;
       return { note, velocity: 100, channel, program, rowId: drumId, role };
     }
-    const pitch = resolvePitchPad(key, octave);
+    const pitch = resolvePitchPad(key, octave, { numberRow: role === "keys" });
     if (!pitch) return undefined;
     return {
       note: pitch.midi,
@@ -601,8 +601,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     updateStatus();
   });
   register("cursorDaw.octaveUp", () => {
-    // 基准八度上移；三排最高到约 C7
-    const max = armedRole() === "bass" ? 3 : 5;
+    // 钢琴四排顶到约 C7；吉他/贝斯三排
+    const role = armedRole();
+    const max = role === "bass" ? 3 : role === "keys" ? 4 : 5;
     octave = Math.min(max, octave + 1);
     updateStatus();
   });

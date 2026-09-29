@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 18
 
-# Hip-hop：滞后底鼓 + 懒 swing
 track drums
 role: drums
 plugin: drum.gm
@@ -23,9 +22,9 @@ track keys
 role: keys
 plugin: keys.gm
 program: 4
-C3     |x=======........|....x=======....|
-Eb3    |........x=======|x=======........|
 G3     |....x=======....|........x=======|
+Eb3    |........x=======|x=======........|
+C3     |x=======........|....x=======....|
 
 track bass
 role: bass

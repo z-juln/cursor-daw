@@ -1,5 +1,6 @@
 import { BUILTIN_ORDER, ID_WIDTH } from "./drums";
 import { parseSession } from "./parser";
+import { pitchToMidi } from "./pitch";
 import { CellKind, DawTrack, Session, TrackRole } from "./types";
 import { cellToChar } from "./velocity";
 
@@ -17,6 +18,24 @@ function formatCells(cells: CellKind[], stepsPerBar: number): string {
 
 function formatRow(id: string, cells: CellKind[], stepsPerBar: number): string {
   return `${id.padEnd(ID_WIDTH)} ${formatCells(cells, stepsPerBar)}`;
+}
+
+/** 音高行：高音在上；鼓件：内置顺序。 */
+export function sortTrackRows(track: DawTrack): void {
+  if (track.role === "drums") {
+    const order = new Map(BUILTIN_ORDER.map((id, index) => [id.toLowerCase(), index]));
+    track.rows.sort((left, right) => {
+      const li = order.get(left.id.toLowerCase()) ?? 1_000;
+      const ri = order.get(right.id.toLowerCase()) ?? 1_000;
+      return li - ri || left.id.localeCompare(right.id);
+    });
+    return;
+  }
+  track.rows.sort((left, right) => {
+    const lm = pitchToMidi(left.id) ?? -1;
+    const rm = pitchToMidi(right.id) ?? -1;
+    return rm - lm || left.id.localeCompare(right.id);
+  });
 }
 
 export interface EmptyTemplateOptions {
@@ -75,6 +94,7 @@ export function formatSessionText(session: Session): string {
     lines.push(`plugin: ${track.plugin}`);
     if (track.program !== undefined) lines.push(`program: ${track.program}`);
     if (track.channel !== undefined) lines.push(`channel: ${track.channel + 1}`);
+    sortTrackRows(track);
     for (const row of track.rows) {
       lines.push(formatRow(row.id, row.cells, session.stepsPerBar));
     }

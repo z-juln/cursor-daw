@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 22
 
-# Funk：切分底鼓 + ghost 军鼓 + 十六分踩镲
 track drums
 role: drums
 plugin: drum.gm

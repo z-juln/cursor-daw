@@ -104,7 +104,7 @@ export class RecorderProvider implements vscode.WebviewViewProvider {
           return { key, label: `${key.toUpperCase()}　${label}`, group: "鼓垫" };
         });
     }
-    return pitchPadRows(state.octave).flatMap((row) =>
+    return pitchPadRows(state.octave, { numberRow: state.armedRole === "keys" }).flatMap((row) =>
       row.keys.map((item) => ({
         key: item.key,
         label: `${item.key.toUpperCase()}　${item.label}`,
@@ -258,7 +258,7 @@ function renderPads(s) {
     b.addEventListener('click', () => cmd('cursorDaw.padHit', pad.key));
     pads.appendChild(b);
   }
-  $('padsTitle').textContent = s.armedRole === 'drums' ? '鼓垫（点击试听）' : '音阶（点击试听）';
+  $('padsTitle').textContent = s.armedRole === 'drums' ? '鼓垫（点击试听）' : '音阶（Shift=♯，点击试听）';
 }
 
 function render() {

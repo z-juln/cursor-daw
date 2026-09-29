@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 0
 
-# 摇滚 driving：底鼓切分 + 强音镲
 track drums
 role: drums
 plugin: drum.gm
@@ -23,8 +22,8 @@ track guitar
 role: guitar
 plugin: gtr.gm
 program: 29
-E3     |x=======........|x=======........|
 B3     |........x=======|........x=======|
+E3     |x=======........|x=======........|
 
 track bass
 role: bass

@@ -4,7 +4,6 @@ meter: 4/4
 steps: 16
 swing: 55
 
-# Shuffle 布鲁斯：高 swing + ride 八分
 track drums
 role: drums
 plugin: drum.gm
