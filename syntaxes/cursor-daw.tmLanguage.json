@@ -21,7 +21,7 @@
     },
     {
       "name": "markup.inserted.hit.cursor-daw",
-      "match": "[xXo*]"
+      "match": "[xXo*1-9]"
     },
     {
       "name": "markup.inserted.hold.cursor-daw",

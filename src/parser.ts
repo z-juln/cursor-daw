@@ -6,6 +6,7 @@ import {
   Session,
   TrackRole,
 } from "./types";
+import { charToCell } from "./velocity";
 
 const HEADER_RE = /^([A-Za-z][A-Za-z0-9_-]{0,15})\s*:\s*(.*)$/;
 const TRACK_START_RE = /^track\s+([A-Za-z][A-Za-z0-9_-]{0,31})\s*$/i;
@@ -21,11 +22,8 @@ const DEFAULT_PLUGIN: Record<TrackRole, string> = {
 };
 
 function cellKind(char: string, warnings: ParseWarning[], line: number): CellKind {
-  if (char === "." || char === "-" || char === "·") return "rest";
-  if (char === "x" || char === "*") return "hit";
-  if (char === "X") return "accent";
-  if (char === "o") return "ghost";
-  if (char === "=") return "hold";
+  const cell = charToCell(char);
+  if (cell) return cell;
   warnings.push({ message: `未知格子字符 "${char}"，按休止处理`, line });
   return "rest";
 }

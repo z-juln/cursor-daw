@@ -2,6 +2,7 @@ import { canonicalDrumId } from "./drums";
 import { DEFAULT_CHANNEL, DEFAULT_PROGRAM, DRUM_TO_GM } from "./midi/gm";
 import { pitchToMidi } from "./pitch";
 import { Session, TimedNote, TrackRole } from "./types";
+import { cellVelocity } from "./velocity";
 
 export interface TimingContext {
   bpm: number;
@@ -40,13 +41,6 @@ function resolveNote(role: TrackRole, rowId: string): number | null {
   return pitchToMidi(rowId);
 }
 
-function velocityOf(cell: string): number {
-  if (cell === "hit") return 100;
-  if (cell === "accent") return 127;
-  if (cell === "ghost") return 50;
-  return 0;
-}
-
 /** Schedule all tracks into timed MIDI notes (drums ignore hold length). */
 export function scheduleSession(session: Session): TimedNote[] {
   const notes: TimedNote[] = [];
@@ -59,7 +53,7 @@ export function scheduleSession(session: Session): TimedNote[] {
       if (note === null) continue;
       for (let step = 0; step < row.cells.length; step += 1) {
         const cell = row.cells[step];
-        const velocity = velocityOf(cell);
+        const velocity = cellVelocity(cell);
         if (velocity <= 0) continue;
         let end = step + 1;
         while (end < row.cells.length && row.cells[end] === "hold") end += 1;

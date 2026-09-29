@@ -1,9 +1,9 @@
 import { BUILTIN_ORDER, ID_WIDTH } from "./drums";
 import { parseSession } from "./parser";
 import { CellKind, DawTrack, Session, TrackRole } from "./types";
+import { cellToChar } from "./velocity";
 
-const toChar = (cell: CellKind): string =>
-  ({ rest: ".", hit: "x", accent: "X", ghost: "o", hold: "=" })[cell];
+const toChar = (cell: CellKind): string => cellToChar(cell);
 
 function formatCells(cells: CellKind[], stepsPerBar: number): string {
   if (cells.length === 0) return "|";

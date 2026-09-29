@@ -1,5 +1,6 @@
 import { midiToPitch } from "../pitch";
 import { CellKind, DawTrack, Session, TrackRole } from "../types";
+import { velocityToCell } from "../velocity";
 import { GM_TO_DRUM, roleFromProgram } from "./gm";
 
 interface RawNote {
@@ -161,7 +162,7 @@ export function decodeMidiToSession(bytes: Uint8Array): Session {
       const cells = rows.get(rowId)!;
       const start = Math.min(totalSteps - 1, Math.floor(note.startTick / stepTicks));
       const end = Math.min(totalSteps, Math.max(start + 1, Math.ceil(note.endTick / stepTicks)));
-      cells[start] = note.velocity >= 110 ? "accent" : note.velocity <= 60 ? "ghost" : "hit";
+      cells[start] = velocityToCell(note.velocity);
       for (let step = start + 1; step < end; step += 1) {
         if (role !== "drums" && cells[step] === "rest") cells[step] = "hold";
       }

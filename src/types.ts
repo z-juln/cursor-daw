@@ -4,7 +4,14 @@ export type DrumId =
 
 export type TrackRole = "drums" | "keys" | "guitar" | "bass";
 
-export type CellKind = "rest" | "hit" | "accent" | "ghost" | "hold";
+/** rest/hold；起音：o/x/X 或力度档 1(最弱)–9(最强)。 */
+export type CellKind =
+  | "rest"
+  | "hit"
+  | "accent"
+  | "ghost"
+  | "hold"
+  | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
 export interface ParseWarning {
   message: string;
