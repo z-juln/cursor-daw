@@ -1,69 +1,72 @@
 # Cursor DAW
 
-在 Cursor / VS Code 中用纯文本编写多轨工程（鼓 / 钢琴 / 吉他 / 贝斯），侧边栏演奏，并经 **MIDI + SoundFont** 出声。
+在 Cursor / VS Code 里用**纯文本**写多轨小工程（鼓、钢琴、吉他、贝斯），侧边栏播放与键盘录制，内置音色直接出声。
+
+适合：想边写谱边听、用 AI 改 `.daw` 文本、不想起完整 DAW 的轻量编曲。
+
+## 能做什么
+
+- 打开 / 新建 `.daw` 文本工程，多轨网格记谱
+- 侧边栏**播放列表**管理本地谱库（`~/.cursor-daw`）
+- **键盘录制**：Pad 演奏、录进格子、拖动进度条定位
+- 编辑器里播放 / 暂停、克隆工程；格子上点击可跳转进度
+- 导入 / 导出 MIDI（可选）
+
+## 快速开始
+
+1. 安装扩展后，点活动栏里的 **Cursor DAW** 图标
+2. 在**创建**里起名，或从**播放列表**打开示例
+3. 打开任意 `.daw`，点侧边栏 **Pad：OFF → ON**（或 `Cmd/Ctrl+'`）
+4. 默认钢琴键位演奏；打开**录制**后再敲键会写入谱面
+5. `Cmd/Ctrl+Enter` 播放 / 暂停
+
+> **Cursor 2.1+**：编辑器标题栏的播放 / 克隆按钮可能藏在 `...` 里。点 **`...` → Configure Icon Visibility**，勾选播放与克隆即可固定显示。
 
 ## 侧边栏
 
-- **播放列表**：`~/.cursor-daw` 目录树；播放整首 `.daw`
-- **键盘录制**（Webview）：Transport、可拖拽进度条、Pad / 录制 / 当前轨与八度；松手后 seek
-- **创建**：名称、目录、BPM、小节数 → 四轨模板
+| 面板 | 做什么 |
+|------|--------|
+| 播放列表 | 浏览谱库、播放、拖拽整理、右键新建 / 重命名 |
+| 键盘录制 | Pad、录制、当前乐器与八度、进度条 |
+| 创建 | 一键生成四轨空白模板 |
 
-## 文件格式（`.daw`）
+## 钢琴 Pad（Pad 开启时默认钢琴）
 
-音高轨行序：**高音在上、低音在下**（钢琴卷帘方向）。格式化 / 导出 / MIDI 导入都会按此排序。
+| 键位 | 音域 |
+|------|------|
+| `ZXCVBNM` | C3–B3 |
+| `ASDFGHJ` | C4–B4 |
+| `QWERTYU` | C5–B5 |
+| `1234567` | C6–B6 |
+
+- `Shift` + 白键 = 升半音（如 `Shift+G` → G#）
+- 侧边栏可切换鼓 / 钢琴 / 吉他 / 贝斯与八度
+
+## 快捷键
+
+| 操作 | 快捷键 |
+|------|--------|
+| 播放 / 暂停 | `Cmd/Ctrl+Enter` |
+| 切换 Pad | `Cmd/Ctrl+'`（`.daw` 编辑器）或 `Cmd/Ctrl+D` |
+| 退出 Pad | `Esc` |
+
+## 谱面长什么样
+
+`.daw` 是可读文本：一行一个音（或鼓件），`.` 休止，`x` 起音，`=` 延音。音高轨习惯是**高音在上、低音在下**。
 
 ```text
 # cursor-daw 1
 bpm: 120
 steps: 16
 
-track drums
-role: drums
-kick   |x...x...x...x...|
-snare  |....x.......x...|
-
 track piano
 role: keys
-C4     |x===........x===|
+E4     |....x===........|
+C4     |x===............|
 ```
 
-格子：`.` 休止，`x`/`X`/`o` 起音，`=` 延音（鼓轨忽略延音）。
+更细的格式说明见扩展内手册（播放列表标题栏书本图标），或仓库里的 `agent/SKILL.md`。
 
-## 音频
+## 给开发者
 
-- 工程 → 内存 MIDI → `spessasynth_core` + 内置 GM SoundFont（`media/soundfonts/gm.sf3`）
-- 扩展宿主内出声（`node-web-audio-api`），不调用系统播放器
-- 命令：**导出 MIDI** / **导入 MIDI**
-
-打包前会自动下载 SoundFont（约 38MB）：
-
-```bash
-npm run fetch:sf2
-npm run package
-```
-
-## 开发
-
-```bash
-npm install
-npm test
-npm run compile
-```
-
-F5 启动 Extension Development Host。安装：`npm run package` 后 Install from VSIX。
-
-## 编辑器
-
-打开 `.daw` 时，编辑器右上角（`...` 左侧）可显示 **播放/暂停**（单图标切换）与 **克隆**。
-
-> Cursor 2.1+ 默认把扩展的编辑器图标收进 `...`。首次请点标题栏 **`...` → Configure Icon Visibility（配置图标可见性）**，勾选 **播放** / **克隆**（或 Pause / Clone），之后就会固定出现在你标出的位置。
-
-进度竖线仅装饰、不改正文。在音高格子行上**鼠标点击或拖动**可跳转进度（当作定位器/进度条；播放中拖动会 scrub）。
-
-## 快捷键
-
-- Play/Pause：`Cmd/Ctrl+Enter`
-- Pad 切换：`Cmd+D`（非编辑器）/ `Cmd+'`（`.daw` 编辑器）
-- 退出 Pad：`Esc`
-- Pad 半音：`Shift` + 白键（如 `Shift+G` → `G#`；`E`/`B` 升半音为下一白键）
-- 钢琴 Pad（默认）：`ZXCVBNM` C3–B3 · `ASDFGHJ` C4–B4 · `QWERTYU` C5–B5 · `1234567` C6–B6
+本地开发、架构、打包与 SoundFont 等见 **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**。设计草案在 `docs/superpowers/`。

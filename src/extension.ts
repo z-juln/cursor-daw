@@ -68,8 +68,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   let playheadIndex: PlayheadIndex | undefined;
   let lastPlayheadStep = -1;
   let lastContextPlaying: boolean | undefined;
-  let armedTrackName = "drums";
-  let armedFallbackRole: TrackRole = "drums";
+  let armedTrackName = "piano";
+  let armedFallbackRole: TrackRole = "keys";
   /**
    * Pad 基准八度（低排 zxcvbnm 的 C）。
    * 钢琴四排 C3–C6（含数字排）；吉他/贝斯三排，自 C2 / C1 起。
@@ -94,6 +94,20 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const applyRoleOctave = (role: TrackRole): void => {
     if (role === "drums") return;
     octave = DEFAULT_OCTAVE[role];
+  };
+
+  /** Pad 开启时默认落到钢琴轨（有 keys 轨则选它，否则试听用 piano/keys）。 */
+  const armPianoForPad = (): void => {
+    const session = currentSession();
+    const piano = session?.tracks.find((track) => track.role === "keys");
+    if (piano) {
+      armedTrackName = piano.name;
+      armedFallbackRole = "keys";
+    } else {
+      armedTrackName = "piano";
+      armedFallbackRole = "keys";
+    }
+    applyRoleOctave("keys");
   };
 
   const bundledExamplesDir = vscode.Uri.joinPath(context.extensionUri, "examples").fsPath;
@@ -457,12 +471,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   register("cursorDaw.enablePadMode", async () => {
     if (padMode.enabled) return;
+    armPianoForPad();
     await padMode.set(true);
     withAudio(() => audio.warmUp());
     updateStatus();
   });
   register("cursorDaw.togglePadMode", async () => {
-    await padMode.toggle();
+    const next = !padMode.enabled;
+    if (next) armPianoForPad();
+    await padMode.set(next);
     if (padMode.enabled) withAudio(() => audio.warmUp());
     updateStatus();
   });
@@ -732,7 +749,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     { dispose: () => audio.dispose() },
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor) ensureDawLanguage(editor.document);
-      if (isDrumEditor(editor) && getPadModeOnOpen()) void padMode.set(true);
+      if (isDrumEditor(editor) && getPadModeOnOpen()) {
+        armPianoForPad();
+        void padMode.set(true);
+      }
       updateEditorChrome();
       updatePlayhead(true);
       sidebar?.refreshRecorder();
