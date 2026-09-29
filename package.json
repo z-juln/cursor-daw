@@ -436,6 +436,7 @@
     "typescript": "^5.7.0"
   },
   "dependencies": {
-    "node-web-audio-api": "^2.2.0"
+    "node-web-audio-api": "^2.2.0",
+    "spessasynth_core": "^4.3.22"
   }
 }
