@@ -8,7 +8,7 @@ let cached: NativeModule | undefined;
 
 /**
  * node-web-audio-api 是纯 ESM 包，靠 Node >= 22.12 的 require(esm) 加载；
- * Cursor 的扩展宿主是 Electron 39 / Node 22，满足要求。
+ * VS Code 兼容扩展宿主（如 Electron 39 / Node 22）满足要求。
  * esbuild 里它被标记为 external，因此这里的 require 会原样保留到运行时。
  */
 function loadNative(): NativeModule {

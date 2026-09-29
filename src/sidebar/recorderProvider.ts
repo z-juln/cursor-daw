@@ -49,7 +49,7 @@ export class RecorderProvider implements vscode.WebviewViewProvider {
         await vscode.commands.executeCommand(message.command, ...(message.args ?? []));
       }
       if (message.type === "seek" && Number.isFinite(message.sec)) {
-        await vscode.commands.executeCommand("cursorDaw.seek", Number(message.sec));
+        await vscode.commands.executeCommand("vsDaw.seek", Number(message.sec));
       }
     });
     webviewView.onDidChangeVisibility(() => {
@@ -207,8 +207,8 @@ export class RecorderProvider implements vscode.WebviewViewProvider {
 
   <h3>说明</h3>
   <div class="row">
-    <a class="link" data-cmd="cursorDaw.openManual" data-args='["skill"]'>工程格式手册</a>
-    <a class="link" data-cmd="cursorDaw.openManual" data-args='["readme"]'>使用说明</a>
+    <a class="link" data-cmd="vsDaw.openManual" data-args='["skill"]'>工程格式手册</a>
+    <a class="link" data-cmd="vsDaw.openManual" data-args='["readme"]'>使用说明</a>
   </div>
 
 <script>
@@ -255,7 +255,7 @@ function renderPads(s) {
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = pad.label;
-    b.addEventListener('click', () => cmd('cursorDaw.padHit', pad.key));
+    b.addEventListener('click', () => cmd('vsDaw.padHit', pad.key));
     pads.appendChild(b);
   }
   $('padsTitle').textContent = s.armedRole === 'drums' ? '鼓垫（点击试听）' : '音阶（Shift=♯，点击试听）';
@@ -284,14 +284,14 @@ function applyTick(t) {
   }
 }
 
-$('pad').onclick = () => cmd('cursorDaw.togglePadMode');
-$('rec').onclick = () => cmd('cursorDaw.toggleRecording');
-$('play').onclick = () => cmd('cursorDaw.playPause');
-$('stop').onclick = () => cmd('cursorDaw.stop');
-$('track').onclick = () => cmd('cursorDaw.pickTrack');
-$('octUp').onclick = () => cmd('cursorDaw.octaveUp');
-$('octDown').onclick = () => cmd('cursorDaw.octaveDown');
-$('audio').onclick = () => cmd('cursorDaw.warmUpAudio');
+$('pad').onclick = () => cmd('vsDaw.togglePadMode');
+$('rec').onclick = () => cmd('vsDaw.toggleRecording');
+$('play').onclick = () => cmd('vsDaw.playPause');
+$('stop').onclick = () => cmd('vsDaw.stop');
+$('track').onclick = () => cmd('vsDaw.pickTrack');
+$('octUp').onclick = () => cmd('vsDaw.octaveUp');
+$('octDown').onclick = () => cmd('vsDaw.octaveDown');
+$('audio').onclick = () => cmd('vsDaw.warmUpAudio');
 
 const seek = $('seek');
 function endSeek() {

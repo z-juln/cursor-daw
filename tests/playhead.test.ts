@@ -6,7 +6,7 @@ import {
 import { parseSession } from "../src/parser";
 import { stepDurationSec } from "../src/schedule";
 
-const SAMPLE = `# cursor-daw 1
+const SAMPLE = `# vs-daw 1
 bpm: 120
 meter: 4/4
 steps: 4

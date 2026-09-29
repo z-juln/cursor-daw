@@ -15,7 +15,7 @@ test("formatSessionText preserves sustain cells", () => {
 });
 
 test("pitch rows serialize high notes above low notes", () => {
-  const session = parseSession(`# cursor-daw 1
+  const session = parseSession(`# vs-daw 1
 bpm: 120
 meter: 4/4
 steps: 4
@@ -32,7 +32,7 @@ C4     |..x.|
 });
 
 test("sortTrackRows orders pitches descending", () => {
-  const track = parseSession(`# cursor-daw 1
+  const track = parseSession(`# vs-daw 1
 bpm: 120
 meter: 4/4
 steps: 4

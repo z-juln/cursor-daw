@@ -1,38 +1,38 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "Cursor DAW",
-  "scopeName": "source.cursor-daw",
+  "name": "VS DAW",
+  "scopeName": "source.vs-daw",
   "patterns": [
     {
-      "name": "comment.line.number-sign.cursor-daw",
+      "name": "comment.line.number-sign.vs-daw",
       "match": "#.*$"
     },
     {
-      "name": "keyword.control.track.cursor-daw",
+      "name": "keyword.control.track.vs-daw",
       "match": "^track\\b"
     },
     {
-      "name": "keyword.other.header.cursor-daw",
+      "name": "keyword.other.header.vs-daw",
       "match": "^[A-Za-z][A-Za-z0-9_-]*(?=\\s*:)"
     },
     {
-      "name": "variable.other.row.cursor-daw",
+      "name": "variable.other.row.vs-daw",
       "match": "^[A-Za-z#][A-Za-z0-9#_^-]*(?=\\s+|\\|)"
     },
     {
-      "name": "markup.inserted.hit.cursor-daw",
+      "name": "markup.inserted.hit.vs-daw",
       "match": "[xXo*1-9]"
     },
     {
-      "name": "markup.inserted.hold.cursor-daw",
+      "name": "markup.inserted.hold.vs-daw",
       "match": "="
     },
     {
-      "name": "comment.punctuation.rest.cursor-daw",
+      "name": "comment.punctuation.rest.vs-daw",
       "match": "[.\\-·]"
     },
     {
-      "name": "punctuation.separator.bar.cursor-daw",
+      "name": "punctuation.separator.bar.vs-daw",
       "match": "\\|"
     }
   ]

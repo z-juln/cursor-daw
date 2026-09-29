@@ -1,8 +1,8 @@
-# Cursor Drum Sidebar Library Implementation Plan
+# VS DAW Sidebar Library Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans task-by-task with checkbox tracking.
 
-**Goal:** 增加三个原生侧边栏视图，并把默认谱库持久化到 `~/.cursor-drum`。
+**Goal:** 增加三个原生侧边栏视图，并把默认谱库持久化到 `~/.vs-daw`。
 
 **Architecture:** 文件系统能力集中在无 VS Code 依赖的 `library.ts` 并以临时目录单测；模板生成扩展为可配置 BPM/小节。三个 TreeDataProvider 只负责展示，`registerSidebar` 注册命令并通过回调复用现有 transport/Pad 状态。
 
@@ -70,4 +70,4 @@
 - [ ] README 增加侧边栏、谱库与录制说明。
 - [ ] 运行 `npm test -- --runInBand`, `npm run check`, `npm run compile`, `node --check media/webview.js`。
 - [ ] 运行 `npm run package` 生成 0.2.0 VSIX。
-- [ ] 用 `cursor --install-extension cursor-drum-0.2.0.vsix --force` 安装并确认扩展列表。
+- [ ] 用 `code --install-extension vs-daw-0.2.0.vsix --force` 安装并确认扩展列表。

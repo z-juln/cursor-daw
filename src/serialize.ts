@@ -55,7 +55,7 @@ export function emptyTemplate(options: EmptyTemplateOptions = {}): string {
   const bars = Number.isInteger(options.bars) && options.bars! > 0 ? options.bars! : 2;
   const rests: CellKind[] = Array(bars * 16).fill("rest");
   const lines = [
-    "# cursor-daw 1",
+    "# vs-daw 1",
     `bpm: ${bpm}`,
     "meter: 4/4",
     "steps: 16",
@@ -81,7 +81,7 @@ export function emptyTemplate(options: EmptyTemplateOptions = {}): string {
 
 export function formatSessionText(session: Session): string {
   const lines = [
-    "# cursor-daw 1",
+    "# vs-daw 1",
     `bpm: ${session.bpm}`,
     `meter: ${session.meter}`,
     `steps: ${session.stepsPerBar}`,

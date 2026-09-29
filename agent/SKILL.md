@@ -1,16 +1,16 @@
 ---
-name: writing-cursor-daw-scores
-description: Use when creating or editing Cursor DAW `.daw` multi-track session files, drum/keys/guitar/bass grids, or MIDI import/export.
+name: writing-vs-daw-scores
+description: Use when creating or editing VS DAW `.daw` multi-track session files, drum/keys/guitar/bass grids, or MIDI import/export.
 ---
 
-# 编写 Cursor DAW 工程
+# 编写 VS DAW 工程
 
 ## 核心格式
 
 `.daw` 是 UTF-8 纯文本多轨工程：先写全局头，再按 `track` 分段；每段内每行是一个音高或鼓件，横向每个字符是一个 step，`|` 是小节线且不占 step。
 
 ```text
-# cursor-daw 1
+# vs-daw 1
 bpm: 120
 meter: 4/4
 steps: 16
@@ -69,13 +69,13 @@ E2     |x=======x=======|
 3. 同一轨内各行总格数一致；乐器/音高名建议补到 6 字符宽。
 4. 修改现有文件时保留注释、小节线和未涉及轨。
 5. Agent 直接改文本；Pad 模式供用户键盘演奏（侧边栏选当前轨与八度）。
-6. 谱库在 `~/.cursor-daw`；`examples/` 按 `demo/`（多轨演示）与 `loops/`（鼓点/节奏 loop：`styles/`、`rhythms/`、`legacy/`）划分。
+6. 谱库在 `~/.vs-daw`；`examples/` 按 `demo/`（多轨演示）与 `loops/`（鼓点/节奏 loop：`styles/`、`rhythms/`、`legacy/`）划分。
 
 ## 音频与 MIDI
 
 - 播放：工程 → 内存 MIDI → SoundFont（GM SF3）合成。
-- 导出：`Cursor DAW: 导出 MIDI`。
-- 导入：`Cursor DAW: 导入 MIDI` → 写入 `~/.cursor-daw`。
+- 导出：`VS DAW: 导出 MIDI`。
+- 导入：`VS DAW: 导入 MIDI` → 写入 `~/.vs-daw`。
 
 ## 常见错误
 

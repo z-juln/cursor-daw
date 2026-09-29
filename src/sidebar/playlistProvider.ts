@@ -259,7 +259,7 @@ export class PlaylistProvider implements vscode.WebviewViewProvider {
         relativePath: folder.relativePath,
         absolutePath: folder.absolutePath,
         playing: false,
-        playState: "cursorDaw.folder",
+        playState: "vsDaw.folder",
         children,
       });
     }
@@ -517,34 +517,34 @@ function refOf(node) {
 
 function folderMenus(node) {
   return [
-    { label: '在此目录创建工程', run: () => cmd('cursorDaw.newScoreInFolder', refOf(node)) },
-    { label: '新建子目录', run: () => cmd('cursorDaw.createLibraryFolder', refOf(node)) },
+    { label: '在此目录创建工程', run: () => cmd('vsDaw.newScoreInFolder', refOf(node)) },
+    { label: '新建子目录', run: () => cmd('vsDaw.createLibraryFolder', refOf(node)) },
     '-',
-    { label: '重命名', run: () => cmd('cursorDaw.renameLibraryItem', refOf(node)) },
-    { label: '删除', run: () => cmd('cursorDaw.deleteLibraryFolder', refOf(node)) },
+    { label: '重命名', run: () => cmd('vsDaw.renameLibraryItem', refOf(node)) },
+    { label: '删除', run: () => cmd('vsDaw.deleteLibraryFolder', refOf(node)) },
   ];
 }
 
 function scoreMenus(node) {
   const items = [];
-  if (node.playState === 'cursorDaw.scorePlaying') {
-    items.push({ label: '暂停', run: () => cmd('cursorDaw.pauseLibraryScore', refOf(node)) });
+  if (node.playState === 'vsDaw.scorePlaying') {
+    items.push({ label: '暂停', run: () => cmd('vsDaw.pauseLibraryScore', refOf(node)) });
   } else {
-    items.push({ label: '播放', run: () => cmd('cursorDaw.playLibraryScore', refOf(node)) });
+    items.push({ label: '播放', run: () => cmd('vsDaw.playLibraryScore', refOf(node)) });
   }
   items.push(
-    { label: '打开', run: () => cmd('cursorDaw.openLibraryScore', refOf(node)) },
+    { label: '打开', run: () => cmd('vsDaw.openLibraryScore', refOf(node)) },
     '-',
-    { label: '重命名', run: () => cmd('cursorDaw.renameLibraryItem', refOf(node)) },
-    { label: '删除', run: () => cmd('cursorDaw.deleteLibraryScore', refOf(node)) },
+    { label: '重命名', run: () => cmd('vsDaw.renameLibraryItem', refOf(node)) },
+    { label: '删除', run: () => cmd('vsDaw.deleteLibraryScore', refOf(node)) },
   );
   return items;
 }
 
 function blankMenus() {
   return [
-    { label: '新建目录', run: () => cmd('cursorDaw.createLibraryFolder') },
-    { label: '新建工程', run: () => cmd('cursorDaw.newScoreInFolder') },
+    { label: '新建目录', run: () => cmd('vsDaw.createLibraryFolder') },
+    { label: '新建工程', run: () => cmd('vsDaw.newScoreInFolder') },
   ];
 }
 
@@ -658,7 +658,7 @@ function renderNode(node, depth) {
     if (node.relativePath === selectedPath) row.classList.add('selected');
 
     if (node.kind === 'score') {
-      const playing = node.playState === 'cursorDaw.scorePlaying';
+      const playing = node.playState === 'vsDaw.scorePlaying';
       const play = document.createElement('button');
       play.className = 'play' + (playing ? ' on' : '');
       play.type = 'button';
@@ -666,8 +666,8 @@ function renderNode(node, depth) {
       play.appendChild(codicon(playing ? 'debug-pause' : 'play'));
       play.onclick = (e) => {
         e.stopPropagation();
-        if (playing) cmd('cursorDaw.pauseLibraryScore', refOf(node));
-        else cmd('cursorDaw.playLibraryScore', refOf(node));
+        if (playing) cmd('vsDaw.pauseLibraryScore', refOf(node));
+        else cmd('vsDaw.playLibraryScore', refOf(node));
       };
       row.appendChild(play);
     }
@@ -681,7 +681,7 @@ function renderNode(node, depth) {
     };
     row.ondblclick = () => {
       selectRow(node.relativePath, node.kind);
-      if (node.kind === 'score') cmd('cursorDaw.openLibraryScore', refOf(node));
+      if (node.kind === 'score') cmd('vsDaw.openLibraryScore', refOf(node));
     };
     row.oncontextmenu = (e) => {
       e.preventDefault();
@@ -709,7 +709,7 @@ function renderNode(node, depth) {
       const sources = dragPaths.length
         ? dragPaths
         : [e.dataTransfer.getData('text/plain')].filter(Boolean);
-      if (sources.length) cmd('cursorDaw.moveLibraryItems', { sources, destFolder });
+      if (sources.length) cmd('vsDaw.moveLibraryItems', { sources, destFolder });
       dragPaths = [];
     };
     frag.appendChild(row);
@@ -764,7 +764,7 @@ function renameSelected() {
   if (draft) return;
   const node = nodeByPath.get(selectedPath);
   if (!node) return;
-  cmd('cursorDaw.renameLibraryItem', refOf(node));
+  cmd('vsDaw.renameLibraryItem', refOf(node));
 }
 
 function activateSelected() {
@@ -772,7 +772,7 @@ function activateSelected() {
   const node = nodeByPath.get(selectedPath);
   if (!node) return;
   if (node.kind === 'folder') renameSelected();
-  else cmd('cursorDaw.openLibraryScore', refOf(node));
+  else cmd('vsDaw.openLibraryScore', refOf(node));
 }
 
 rootEl.oncontextmenu = (e) => {
@@ -789,7 +789,7 @@ rootEl.ondragover = (e) => {
 rootEl.ondrop = (e) => {
   if (e.target !== rootEl && e.target.closest('.row')) return;
   e.preventDefault();
-  cmd('cursorDaw.moveLibraryItems', { sources: dragPaths, destFolder: '' });
+  cmd('vsDaw.moveLibraryItems', { sources: dragPaths, destFolder: '' });
   dragPaths = [];
 };
 

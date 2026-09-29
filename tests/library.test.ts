@@ -18,7 +18,7 @@ import {
 let temporaryRoot: string;
 
 beforeEach(async () => {
-  temporaryRoot = await fs.mkdtemp(path.join(os.tmpdir(), "cursor-drum-"));
+  temporaryRoot = await fs.mkdtemp(path.join(os.tmpdir(), "vs-daw-"));
 });
 
 afterEach(async () => {

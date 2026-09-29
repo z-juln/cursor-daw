@@ -1,6 +1,6 @@
 export type ContextSetter = (key: string, value: boolean) => Thenable<void>;
 
-const CONTEXT_KEY = "cursorDaw.recording";
+const CONTEXT_KEY = "vsDaw.recording";
 
 export class RecordingMode {
   private on = false;

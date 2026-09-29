@@ -1,9 +1,9 @@
 {
-  "name": "cursor-daw",
-  "displayName": "Cursor DAW",
+  "name": "vs-daw",
+  "displayName": "VS DAW",
   "description": "纯文本多轨 DAW：鼓/钢琴/吉他/贝斯、MIDI+SoundFont 播放",
   "version": "1.0.0",
-  "publisher": "cursor-daw",
+  "publisher": "vs-daw",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -11,16 +11,16 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:cursor-daw",
+    "onLanguage:vs-daw",
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
       {
-        "id": "cursor-daw",
+        "id": "vs-daw",
         "aliases": [
-          "Cursor DAW",
+          "VS DAW",
           "daw"
         ],
         "extensions": [
@@ -31,657 +31,657 @@
     ],
     "grammars": [
       {
-        "language": "cursor-daw",
-        "scopeName": "source.cursor-daw",
-        "path": "./syntaxes/cursor-daw.tmLanguage.json"
+        "language": "vs-daw",
+        "scopeName": "source.vs-daw",
+        "path": "./syntaxes/vs-daw.tmLanguage.json"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "cursorDaw",
-          "title": "Cursor DAW",
+          "id": "vsDaw",
+          "title": "VS DAW",
           "icon": "media/daw.svg"
         }
       ]
     },
     "views": {
-      "cursorDaw": [
+      "vsDaw": [
         {
-          "id": "cursorDaw.playlist",
+          "id": "vsDaw.playlist",
           "name": "播放列表",
           "type": "webview"
         },
         {
-          "id": "cursorDaw.recorder",
+          "id": "vsDaw.recorder",
           "name": "键盘录制",
           "type": "webview"
         },
         {
-          "id": "cursorDaw.creator",
+          "id": "vsDaw.creator",
           "name": "创建"
         }
       ]
     },
     "viewsWelcome": [
       {
-        "view": "cursorDaw.playlist",
-        "contents": "谱库为空。\n[创建工程](command:cursorDaw.newScore)"
+        "view": "vsDaw.playlist",
+        "contents": "谱库为空。\n[创建工程](command:vsDaw.newScore)"
       }
     ],
     "commands": [
       {
-        "command": "cursorDaw.playPause",
+        "command": "vsDaw.playPause",
         "title": "播放/暂停",
         "icon": "$(play)",
-        "category": "Cursor DAW"
+        "category": "VS DAW"
       },
       {
-        "command": "cursorDaw.editorPlay",
+        "command": "vsDaw.editorPlay",
         "title": "播放",
         "icon": "$(play)",
-        "category": "Cursor DAW"
+        "category": "VS DAW"
       },
       {
-        "command": "cursorDaw.editorPause",
+        "command": "vsDaw.editorPause",
         "title": "暂停",
         "icon": "$(debug-pause)",
-        "category": "Cursor DAW"
+        "category": "VS DAW"
       },
       {
-        "command": "cursorDaw.cloneScore",
+        "command": "vsDaw.cloneScore",
         "title": "克隆",
         "icon": "$(copy)",
-        "category": "Cursor DAW"
+        "category": "VS DAW"
       },
       {
-        "command": "cursorDaw.restart",
-        "title": "Cursor DAW: Restart"
+        "command": "vsDaw.restart",
+        "title": "VS DAW: Restart"
       },
       {
-        "command": "cursorDaw.stop",
-        "title": "Cursor DAW: Stop"
+        "command": "vsDaw.stop",
+        "title": "VS DAW: Stop"
       },
       {
-        "command": "cursorDaw.enablePadMode",
-        "title": "Cursor DAW: 开启 Pad 模式",
-        "category": "Cursor DAW"
+        "command": "vsDaw.enablePadMode",
+        "title": "VS DAW: 开启 Pad 模式",
+        "category": "VS DAW"
       },
       {
-        "command": "cursorDaw.togglePadMode",
-        "title": "Cursor DAW: 切换 Pad 模式",
-        "category": "Cursor DAW"
+        "command": "vsDaw.togglePadMode",
+        "title": "VS DAW: 切换 Pad 模式",
+        "category": "VS DAW"
       },
       {
-        "command": "cursorDaw.exitPadMode",
-        "title": "Cursor DAW: 退出 Pad 模式",
-        "category": "Cursor DAW"
+        "command": "vsDaw.exitPadMode",
+        "title": "VS DAW: 退出 Pad 模式",
+        "category": "VS DAW"
       },
       {
-        "command": "cursorDaw.insertRuler",
-        "title": "Cursor DAW: Insert Ruler"
+        "command": "vsDaw.insertRuler",
+        "title": "VS DAW: Insert Ruler"
       },
       {
-        "command": "cursorDaw.formatScore",
-        "title": "Cursor DAW: Format Score"
+        "command": "vsDaw.formatScore",
+        "title": "VS DAW: Format Score"
       },
       {
-        "command": "cursorDaw.newScore",
-        "title": "Cursor DAW: New Score",
+        "command": "vsDaw.newScore",
+        "title": "VS DAW: New Score",
         "icon": "$(new-file)"
       },
       {
-        "command": "cursorDaw.padHit",
-        "title": "Cursor DAW: Pad Hit"
+        "command": "vsDaw.padHit",
+        "title": "VS DAW: Pad Hit"
       },
       {
-        "command": "cursorDaw.openManual",
-        "title": "Cursor DAW: 打开说明书",
+        "command": "vsDaw.openManual",
+        "title": "VS DAW: 打开说明书",
         "icon": "$(book)"
       },
       {
-        "command": "cursorDaw.warmUpAudio",
-        "title": "Cursor DAW: 启动音频引擎"
+        "command": "vsDaw.warmUpAudio",
+        "title": "VS DAW: 启动音频引擎"
       },
       {
-        "command": "cursorDaw.pickTrack",
-        "title": "Cursor DAW: 切换乐器"
+        "command": "vsDaw.pickTrack",
+        "title": "VS DAW: 切换乐器"
       },
       {
-        "command": "cursorDaw.seek",
-        "title": "Cursor DAW: Seek"
+        "command": "vsDaw.seek",
+        "title": "VS DAW: Seek"
       },
       {
-        "command": "cursorDaw.octaveUp",
-        "title": "Cursor DAW: 升八度"
+        "command": "vsDaw.octaveUp",
+        "title": "VS DAW: 升八度"
       },
       {
-        "command": "cursorDaw.octaveDown",
-        "title": "Cursor DAW: 降八度"
+        "command": "vsDaw.octaveDown",
+        "title": "VS DAW: 降八度"
       },
       {
-        "command": "cursorDaw.exportMidi",
-        "title": "Cursor DAW: 导出 MIDI"
+        "command": "vsDaw.exportMidi",
+        "title": "VS DAW: 导出 MIDI"
       },
       {
-        "command": "cursorDaw.importMidi",
-        "title": "Cursor DAW: 导入 MIDI"
+        "command": "vsDaw.importMidi",
+        "title": "VS DAW: 导入 MIDI"
       },
       {
-        "command": "cursorDaw.syncLibrary",
-        "title": "Cursor DAW: 同步示例工程",
+        "command": "vsDaw.syncLibrary",
+        "title": "VS DAW: 同步示例工程",
         "icon": "$(cloud-download)"
       },
       {
-        "command": "cursorDaw.refreshLibrary",
-        "title": "Cursor DAW: 刷新播放列表",
+        "command": "vsDaw.refreshLibrary",
+        "title": "VS DAW: 刷新播放列表",
         "icon": "$(refresh)"
       },
       {
-        "command": "cursorDaw.openLibraryScore",
-        "title": "Cursor DAW: 打开工程"
+        "command": "vsDaw.openLibraryScore",
+        "title": "VS DAW: 打开工程"
       },
       {
-        "command": "cursorDaw.playLibraryScore",
-        "title": "Cursor DAW: 播放工程",
+        "command": "vsDaw.playLibraryScore",
+        "title": "VS DAW: 播放工程",
         "icon": "$(play)"
       },
       {
-        "command": "cursorDaw.pauseLibraryScore",
-        "title": "Cursor DAW: 暂停工程",
+        "command": "vsDaw.pauseLibraryScore",
+        "title": "VS DAW: 暂停工程",
         "icon": "$(debug-pause)"
       },
       {
-        "command": "cursorDaw.deleteLibraryScore",
-        "title": "Cursor DAW: 删除工程",
+        "command": "vsDaw.deleteLibraryScore",
+        "title": "VS DAW: 删除工程",
         "icon": "$(trash)"
       },
       {
-        "command": "cursorDaw.createLibraryFolder",
-        "title": "Cursor DAW: 新建目录",
+        "command": "vsDaw.createLibraryFolder",
+        "title": "VS DAW: 新建目录",
         "icon": "$(new-folder)"
       },
       {
-        "command": "cursorDaw.renameLibraryFolder",
-        "title": "Cursor DAW: 重命名",
+        "command": "vsDaw.renameLibraryFolder",
+        "title": "VS DAW: 重命名",
         "icon": "$(edit)"
       },
       {
-        "command": "cursorDaw.renameLibraryItem",
-        "title": "Cursor DAW: 重命名",
+        "command": "vsDaw.renameLibraryItem",
+        "title": "VS DAW: 重命名",
         "icon": "$(edit)"
       },
       {
-        "command": "cursorDaw.deleteLibraryFolder",
-        "title": "Cursor DAW: 删除目录",
+        "command": "vsDaw.deleteLibraryFolder",
+        "title": "VS DAW: 删除目录",
         "icon": "$(trash)"
       },
       {
-        "command": "cursorDaw.newScoreInFolder",
-        "title": "Cursor DAW: 在此目录创建工程",
+        "command": "vsDaw.newScoreInFolder",
+        "title": "VS DAW: 在此目录创建工程",
         "icon": "$(new-file)"
       },
       {
-        "command": "cursorDaw.moveLibraryItems",
-        "title": "Cursor DAW: 移动谱库条目"
+        "command": "vsDaw.moveLibraryItems",
+        "title": "VS DAW: 移动谱库条目"
       },
       {
-        "command": "cursorDaw.collapsePlaylist",
-        "title": "Cursor DAW: 折叠播放列表",
+        "command": "vsDaw.collapsePlaylist",
+        "title": "VS DAW: 折叠播放列表",
         "icon": "$(collapse-all)"
       },
       {
-        "command": "cursorDaw.creatorSetFolder",
-        "title": "Cursor DAW: 设置创建目录"
+        "command": "vsDaw.creatorSetFolder",
+        "title": "VS DAW: 设置创建目录"
       },
       {
-        "command": "cursorDaw.toggleRecording",
-        "title": "Cursor DAW: 切换录制"
+        "command": "vsDaw.toggleRecording",
+        "title": "VS DAW: 切换录制"
       },
       {
-        "command": "cursorDaw.creatorSetName",
-        "title": "Cursor DAW: 设置名称"
+        "command": "vsDaw.creatorSetName",
+        "title": "VS DAW: 设置名称"
       },
       {
-        "command": "cursorDaw.creatorSetBpm",
-        "title": "Cursor DAW: 设置 BPM"
+        "command": "vsDaw.creatorSetBpm",
+        "title": "VS DAW: 设置 BPM"
       },
       {
-        "command": "cursorDaw.creatorSetBars",
-        "title": "Cursor DAW: 设置小节数"
+        "command": "vsDaw.creatorSetBars",
+        "title": "VS DAW: 设置小节数"
       },
       {
-        "command": "cursorDaw.creatorCreate",
-        "title": "Cursor DAW: 创建工程"
+        "command": "vsDaw.creatorCreate",
+        "title": "VS DAW: 创建工程"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "cursorDaw.editorPlay",
-          "when": "resourceExtname == .daw && !cursorDaw.playing",
+          "command": "vsDaw.editorPlay",
+          "when": "resourceExtname == .daw && !vsDaw.playing",
           "group": "navigation@1"
         },
         {
-          "command": "cursorDaw.editorPause",
-          "when": "resourceExtname == .daw && cursorDaw.playing",
+          "command": "vsDaw.editorPause",
+          "when": "resourceExtname == .daw && vsDaw.playing",
           "group": "navigation@1"
         },
         {
-          "command": "cursorDaw.cloneScore",
+          "command": "vsDaw.cloneScore",
           "when": "resourceExtname == .daw",
           "group": "navigation@2"
         }
       ],
       "view/title": [
         {
-          "command": "cursorDaw.refreshLibrary",
-          "when": "view == cursorDaw.playlist",
+          "command": "vsDaw.refreshLibrary",
+          "when": "view == vsDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDaw.syncLibrary",
-          "when": "view == cursorDaw.playlist",
+          "command": "vsDaw.syncLibrary",
+          "when": "view == vsDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDaw.newScore",
-          "when": "view == cursorDaw.playlist",
+          "command": "vsDaw.newScore",
+          "when": "view == vsDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDaw.createLibraryFolder",
-          "when": "view == cursorDaw.playlist",
+          "command": "vsDaw.createLibraryFolder",
+          "when": "view == vsDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDaw.collapsePlaylist",
-          "when": "view == cursorDaw.playlist",
+          "command": "vsDaw.collapsePlaylist",
+          "when": "view == vsDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDaw.openManual",
-          "when": "view == cursorDaw.playlist",
+          "command": "vsDaw.openManual",
+          "when": "view == vsDaw.playlist",
           "group": "navigation"
         },
         {
-          "command": "cursorDaw.openManual",
-          "when": "view == cursorDaw.recorder",
+          "command": "vsDaw.openManual",
+          "when": "view == vsDaw.recorder",
           "group": "navigation"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "cursorDaw.playPause",
+        "command": "vsDaw.playPause",
         "key": "ctrl+enter",
         "mac": "cmd+enter",
-        "when": "editorLangId == cursor-daw"
+        "when": "editorLangId == vs-daw"
       },
       {
-        "command": "cursorDaw.restart",
+        "command": "vsDaw.restart",
         "key": "ctrl+shift+enter",
         "mac": "cmd+shift+enter",
-        "when": "editorLangId == cursor-daw"
+        "when": "editorLangId == vs-daw"
       },
       {
-        "command": "cursorDaw.togglePadMode",
+        "command": "vsDaw.togglePadMode",
         "key": "ctrl+d",
         "mac": "cmd+d",
         "when": "!inputFocus && !editorTextFocus"
       },
       {
-        "command": "cursorDaw.togglePadMode",
+        "command": "vsDaw.togglePadMode",
         "key": "ctrl+'",
         "mac": "cmd+'",
-        "when": "editorLangId == cursor-daw && !inputFocus"
+        "when": "editorLangId == vs-daw && !inputFocus"
       },
       {
-        "command": "cursorDaw.exitPadMode",
+        "command": "vsDaw.exitPadMode",
         "key": "escape",
-        "when": "cursorDaw.padMode && !inputFocus"
+        "when": "vsDaw.padMode && !inputFocus"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "z",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "z"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "x",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "x"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "c",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "c"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "v",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "v"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "b",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "b"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "n",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "n"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "m",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "m"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "a",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "a"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "s",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "s"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "d",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "d"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "f",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "f"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "g",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "g"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "h",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "h"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "j",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "j"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "q",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "q"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "w",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "w"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "e",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "e"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "r",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "r"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "t",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "t"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "y",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "y"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "u",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "u"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+z",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "z#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+x",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "x#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+c",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "c#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+v",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "v#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+b",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "b#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+n",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "n#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+m",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "m#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+a",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "a#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+s",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "s#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+d",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "d#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+f",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "f#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+g",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "g#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+h",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "h#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+j",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "j#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+q",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "q#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+w",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "w#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+e",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "e#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+r",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "r#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+t",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "t#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+y",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "y#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+u",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "u#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "1",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "1"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "2",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "2"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "3",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "3"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "4",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "4"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "5",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "5"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "6",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "6"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "7",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "7"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+1",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "1#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+2",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "2#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+3",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "3#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+4",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "4#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+5",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "5#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+6",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "6#"
       },
       {
-        "command": "cursorDaw.padHit",
+        "command": "vsDaw.padHit",
         "key": "shift+7",
-        "when": "cursorDaw.padMode && !inputFocus || cursorDaw.padMode && editorTextFocus && editorLangId == cursor-daw",
+        "when": "vsDaw.padMode && !inputFocus || vsDaw.padMode && editorTextFocus && editorLangId == vs-daw",
         "args": "7#"
       }
     ],
     "configuration": {
-      "title": "Cursor DAW",
+      "title": "VS DAW",
       "properties": {
-        "cursorDaw.fileExtensions": {
+        "vsDaw.fileExtensions": {
           "type": "array",
           "items": {
             "type": "string"
@@ -690,7 +690,7 @@
             "daw"
           ]
         },
-        "cursorDaw.keyMap": {
+        "vsDaw.keyMap": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -708,11 +708,11 @@
             "t": "ride"
           }
         },
-        "cursorDaw.loop": {
+        "vsDaw.loop": {
           "type": "boolean",
           "default": true
         },
-        "cursorDaw.padModeOnOpen": {
+        "vsDaw.padModeOnOpen": {
           "type": "boolean",
           "default": false
         }
@@ -726,7 +726,7 @@
     "test": "jest",
     "verify:audio": "esbuild scripts/verifyAudio.ts --bundle --platform=node --format=cjs --external:node-web-audio-api --external:spessasynth_core --external:stb-vorbis --outfile=dist/verifyAudio.cjs --log-level=warning && node dist/verifyAudio.cjs",
     "fetch:sf2": "node scripts/fetchSf2.mjs",
-    "package": "node scripts/fetchSf2.mjs && node scripts/trimNative.mjs && vsce package"
+    "package": "node scripts/fetchSf2.mjs && node scripts/trimNative.mjs && npx @vscode/vsce package --allow-missing-repository --no-rewrite-relative-links --skip-license"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

@@ -45,10 +45,10 @@ E4 |..x=====|
     filled += size;
   }
   const wav = audioToWav([left, right], sampleRate);
-  writeFileSync("/tmp/cursor-daw-spike.wav", Buffer.from(wav));
+  writeFileSync("/tmp/vs-daw-spike.wav", Buffer.from(wav));
   let energy = 0;
   for (let i = 0; i < left.length; i += 1) energy += left[i] * left[i];
-  console.log(JSON.stringify({ ok: energy > 0.0001, energy, out: "/tmp/cursor-daw-spike.wav" }));
+  console.log(JSON.stringify({ ok: energy > 0.0001, energy, out: "/tmp/vs-daw-spike.wav" }));
 }
 
 main().catch((error) => {

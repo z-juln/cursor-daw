@@ -1,7 +1,7 @@
 import { parseSession } from "../src/parser";
 
 test("parses global header and multi tracks with sustain", () => {
-  const session = parseSession(`# cursor-daw 1
+  const session = parseSession(`# vs-daw 1
 bpm: 100
 steps: 8
 track drums

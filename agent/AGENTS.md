@@ -1,4 +1,4 @@
-# Cursor DAW Agent 说明
+# VS DAW Agent 说明
 
 本项目的 `.daw` 文件是多轨纯文本工程：鼓 / 钢琴 / 吉他 / 贝斯共用 step 网格，延音用 `=`。
 

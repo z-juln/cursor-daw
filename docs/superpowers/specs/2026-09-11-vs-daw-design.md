@@ -1,11 +1,11 @@
-# Cursor Drum 设计规格
+# VS DAW 设计规格
 
 日期：2026-09-11  
 状态：待用户审阅后进入实施计划
 
 ## 1. 目标
 
-在 Cursor（VS Code 兼容）里用纯文本编写、键盘录制、即时试听一套鼓组谱。文件本身就是乐谱：纵向是鼓件，横向是时间（小节/拍），观感接近 DAW 鼓机网格，但全部是可手写、可被 Agent 编辑的文本。
+在 VS Code 及兼容编辑器里用纯文本编写、键盘录制、即时试听一套鼓组谱。文件本身就是乐谱：纵向是鼓件，横向是时间（小节/拍），观感接近 DAW 鼓机网格，但全部是可手写、可被 Agent 编辑的文本。
 
 成功标准：
 
@@ -24,11 +24,11 @@
 
 ## 2. 产品形态
 
-可本地安装的 VS Code / Cursor 扩展，仓库即扩展根目录。
+可本地安装的 VS Code 兼容扩展，仓库即扩展根目录。
 
 - 默认文件后缀：`.drum`
-- 设置项 `cursorDrum.fileExtensions`：字符串数组，例如 `["drum", "drums"]`，写入 `files.associations` 等效行为（扩展自己贡献 language + 可配置）
-- 鼓谱 Language Id：`cursor-drum`
+- 设置项 `vsDaw.fileExtensions`：字符串数组，例如 `["drum", "drums"]`，写入 `files.associations` 等效行为（扩展自己贡献 language + 可配置）
+- 鼓谱 Language Id：`vs-daw`
 - 打开匹配文件时提供：语法高亮、键位命令、播放装饰、状态栏 BPM/小节/Pad 模式
 
 两种编辑方式并存：
@@ -54,7 +54,7 @@ Pad 模式用命令切换，状态栏显示 `Drum Pad: ON/OFF`。关闭时空格
 ### 3.2 推荐骨架
 
 ```text
-# cursor-drum 1
+# vs-daw 1
 bpm: 120
 meter: 4/4
 steps: 16
@@ -83,7 +83,7 @@ ride   |................|................|
 | `steps` | 16 | **每个小节的 step 数**。4/4 下 16 = 十六分音符网格 |
 | `swing` | 0 | 0–100。偶数 step 不动，奇数 step 向后推 `(swing/100) * 半个step时长` |
 
-版本行 `# cursor-drum 1` 可选。解析器按本规格 v1 处理。若出现 `version: 2` 且不支持，播放报错，文本仍可编辑。
+版本行 `# vs-daw 1` 可选。解析器按本规格 v1 处理。若出现 `version: 2` 且不支持，播放报错，文本仍可编辑。
 
 ### 3.4 格子字符
 
@@ -131,7 +131,7 @@ ride   |................|................|
 
 - 左列乐器名右对齐到 6 字符宽（`kick␠␠`），后面一个空格再接 `|`。
 - 每 `steps` 个格子用 `|` 包一小节：`|` + cells + `|`，小节之间无额外字符。
-- 建议在轨道上方放注释标尺（不参与播放）。命令 `cursorDrum.insertRuler` 按当前 `steps`/`meter` 插入或刷新标尺注释。
+- 建议在轨道上方放注释标尺（不参与播放）。命令 `vsDaw.insertRuler` 按当前 `steps`/`meter` 插入或刷新标尺注释。
 - 语法高亮：击打亮、休止暗、小节线更暗、乐器名一色、文件头键一色。
 
 ### 3.8 序列化（键盘写入时）
@@ -143,13 +143,13 @@ ride   |................|................|
 3. 若当前文件还没有该轨道，在文件末尾按内置顺序插入一行空轨道（全休止，长度 = 现有最长轨道，含 `|`）。
 4. 若文件完全是空的，插入默认文件头 + 全部内置轨道（2 小节空谱）再写第一击。
 
-不在保存时「格式化全文」，避免和手写/Agent 冲突。另提供命令 `cursorDrum.formatScore` 可选对齐。
+不在保存时「格式化全文」，避免和手写/Agent 冲突。另提供命令 `vsDaw.formatScore` 可选对齐。
 
 ## 4. 键盘、命令与播放
 
 ### 4.1 Pad 键位（Pad 模式 ON 且活动编辑器是鼓谱）
 
-按键不区分大小写。第一版固定，可用设置覆盖 `cursorDrum.keyMap`（对象：键 → 乐器 id）。
+按键不区分大小写。第一版固定，可用设置覆盖 `vsDaw.keyMap`（对象：键 → 乐器 id）。
 
 | 键 | 乐器 |
 |----|------|
@@ -174,13 +174,13 @@ ride   |................|................|
 
 | 命令 | 默认键 | 行为 |
 |------|--------|------|
-| `cursorDrum.playPause` | `Ctrl/Cmd+Enter` | 播放↔暂停；暂停保持播放头 |
-| `cursorDrum.restart` | `Ctrl/Cmd+Shift+Enter` | 播放头归零并播放 |
-| `cursorDrum.stop` | `Escape`（仅 Pad 模式） | 停止，播放头归零，不自动播 |
-| `cursorDrum.togglePadMode` | `Ctrl/Cmd+'` | 切换 Pad |
-| `cursorDrum.insertRuler` | 无 | 插入/更新标尺注释 |
-| `cursorDrum.formatScore` | 无 | 对齐乐器列与 `|` |
-| `cursorDrum.newScore` | 无 | 从模板新建 Untitled 鼓谱 |
+| `vsDaw.playPause` | `Ctrl/Cmd+Enter` | 播放↔暂停；暂停保持播放头 |
+| `vsDaw.restart` | `Ctrl/Cmd+Shift+Enter` | 播放头归零并播放 |
+| `vsDaw.stop` | `Escape`（仅 Pad 模式） | 停止，播放头归零，不自动播 |
+| `vsDaw.togglePadMode` | `Ctrl/Cmd+'` | 切换 Pad |
+| `vsDaw.insertRuler` | 无 | 插入/更新标尺注释 |
+| `vsDaw.formatScore` | 无 | 对齐乐器列与 `|` |
+| `vsDaw.newScore` | 无 | 从模板新建 Untitled 鼓谱 |
 
 文本模式不占用字母键和 Escape，避免无法打字。
 
@@ -191,7 +191,7 @@ ride   |................|................|
 - **写入拍**：
   - 正在播放：取「当前发声点」对应 step（向下取整到 step）。
   - 已停止：把光标所在列映射到最近 step；若光标在乐器名或注释行，用该列对应的 step，乐器取键位映射而不是光标行。
-- 播放循环：第一版 **整份谱循环**，直到暂停。设置 `cursorDrum.loop` 默认 `true`。
+- 播放循环：第一版 **整份谱循环**，直到暂停。设置 `vsDaw.loop` 默认 `true`。
 
 ### 4.4 音频
 
@@ -224,7 +224,7 @@ src/
     webview.js          # 合成器 + 调度
     synth.ts            # 若逻辑在扩展侧生成参数，实际发声仍在 webview
   config.ts             # 后缀、keymap、loop
-syntaxes/cursor-drum.tmLanguage.json
+syntaxes/vs-daw.tmLanguage.json
 media/                  # 图标可选
 agent/
   SKILL.md              # Agent 手册（安装到用户技能或随仓库）
@@ -251,17 +251,17 @@ docs/superpowers/specs/ 本文件
 
 设置：
 
-- `cursorDrum.fileExtensions`: `string[]`，默认 `["drum"]`
-- `cursorDrum.keyMap`: `{ [key: string]: string }`
-- `cursorDrum.loop`: `boolean`，默认 true
-- `cursorDrum.padModeOnOpen`: `boolean`，默认 false
+- `vsDaw.fileExtensions`: `string[]`，默认 `["drum"]`
+- `vsDaw.keyMap`: `{ [key: string]: string }`
+- `vsDaw.loop`: `boolean`，默认 true
+- `vsDaw.padModeOnOpen`: `boolean`，默认 false
 
 ## 6. 错误处理
 
 | 情况 | 行为 |
 |------|------|
 | 空文件播放 | 插入模板，不发声，信息提示「空谱」 |
-| 解析 warning | 输出面板 `Cursor Drum`，仍播放 |
+| 解析 warning | 输出面板 `VS DAW`，仍播放 |
 | 解析致命错误（如 bpm 非数字且无法默认） | 用默认 bpm，warning |
 | webview 崩溃 | 下次播放重建；提示重试 |
 | 非鼓谱文件执行播放 | 若活动编辑器后缀不匹配，提示并忽略 |

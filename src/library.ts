@@ -25,7 +25,7 @@ export interface CreateScoreOptions {
 }
 
 export function defaultLibraryRoot(): string {
-  return path.join(os.homedir(), ".cursor-daw");
+  return path.join(os.homedir(), ".vs-daw");
 }
 
 function resolvedLibraryRoot(root: string): string {

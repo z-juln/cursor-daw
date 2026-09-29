@@ -92,7 +92,7 @@ export function parseSession(text: string): Session {
     if (!trimmed) return;
 
     if (trimmed.startsWith("#")) {
-      const version = trimmed.match(/cursor-daw\s+(\d+)/i);
+      const version = trimmed.match(/vs-daw\s+(\d+)/i);
       if (version && version[1] !== "1") unsupportedVersion = true;
       return;
     }

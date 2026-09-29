@@ -48,7 +48,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const recordingMode = new RecordingMode(
     (key, value) => vscode.commands.executeCommand("setContext", key, value),
   );
-  const output = vscode.window.createOutputChannel("Cursor DAW");
+  const output = vscode.window.createOutputChannel("VS DAW");
   const playhead = vscode.window.createTextEditorDecorationType({
     backgroundColor: new vscode.ThemeColor("editor.findMatchHighlightBackground"),
     borderWidth: "0 0 0 2px",
@@ -189,7 +189,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const playing = transport.status === "playing";
     if (lastContextPlaying === playing) return;
     lastContextPlaying = playing;
-    void vscode.commands.executeCommand("setContext", "cursorDaw.playing", playing);
+    void vscode.commands.executeCommand("setContext", "vsDaw.playing", playing);
   };
 
   const updateEditorChrome = (): void => {
@@ -198,8 +198,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   const ensureDawLanguage = (document: vscode.TextDocument): void => {
     const ext = path.extname(document.fileName).toLowerCase();
-    if (ext === ".daw" && document.languageId !== "cursor-daw") {
-      void vscode.languages.setTextDocumentLanguage(document, "cursor-daw");
+    if (ext === ".daw" && document.languageId !== "vs-daw") {
+      void vscode.languages.setTextDocumentLanguage(document, "vs-daw");
     }
   };
 
@@ -410,7 +410,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const canResume = sameLoadedSource(next);
     if (!canResume) {
       const loaded = await vscode.window.withProgress(
-        { location: vscode.ProgressLocation.Window, title: "Cursor DAW: 加载中…" },
+        { location: vscode.ProgressLocation.Window, title: "VS DAW: 加载中…" },
         () => loadSource(next),
       );
       if (!loaded) return;
@@ -469,45 +469,45 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     };
   };
 
-  register("cursorDaw.enablePadMode", async () => {
+  register("vsDaw.enablePadMode", async () => {
     if (padMode.enabled) return;
     armPianoForPad();
     await padMode.set(true);
     withAudio(() => audio.warmUp());
     updateStatus();
   });
-  register("cursorDaw.togglePadMode", async () => {
+  register("vsDaw.togglePadMode", async () => {
     const next = !padMode.enabled;
     if (next) armPianoForPad();
     await padMode.set(next);
     if (padMode.enabled) withAudio(() => audio.warmUp());
     updateStatus();
   });
-  register("cursorDaw.exitPadMode", async () => {
+  register("vsDaw.exitPadMode", async () => {
     if (!padMode.enabled) return;
     await padMode.set(false);
     await applyTransport({ type: "stop" });
     updateStatus();
   });
-  register("cursorDaw.toggleRecording", async () => {
+  register("vsDaw.toggleRecording", async () => {
     await recordingMode.toggle();
     updateStatus();
   });
-  register("cursorDaw.warmUpAudio", () => {
+  register("vsDaw.warmUpAudio", () => {
     audioBroken = false;
     withAudio(() => audio.warmUp());
     updateStatus();
   });
-  register("cursorDaw.formatScore", async () => {
+  register("vsDaw.formatScore", async () => {
     const editor = activeDawEditor();
     if (editor) await replaceDocument(editor, formatScoreText(editor.document.getText()));
   });
-  register("cursorDaw.playPause", () => applyTransport({ type: "playPause" }));
-  register("cursorDaw.editorPlay", () => applyTransport({ type: "play" }));
-  register("cursorDaw.editorPause", () => applyTransport({ type: "pause" }));
-  register("cursorDaw.restart", () => applyTransport({ type: "restart" }));
-  register("cursorDaw.stop", () => applyTransport({ type: "stop" }));
-  register("cursorDaw.cloneScore", async () => {
+  register("vsDaw.playPause", () => applyTransport({ type: "playPause" }));
+  register("vsDaw.editorPlay", () => applyTransport({ type: "play" }));
+  register("vsDaw.editorPause", () => applyTransport({ type: "pause" }));
+  register("vsDaw.restart", () => applyTransport({ type: "restart" }));
+  register("vsDaw.stop", () => applyTransport({ type: "stop" }));
+  register("vsDaw.cloneScore", async () => {
     const editor = activeDawEditor();
     if (!editor) {
       void vscode.window.showWarningMessage("请先打开 .daw 工程");
@@ -549,7 +549,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(target));
     void vscode.window.showInformationMessage(`已克隆为 ${path.basename(target.fsPath)}`);
   });
-  register("cursorDaw.padHit", async (key: string) => {
+  register("vsDaw.padHit", async (key: string) => {
     const resolved = resolvePadNote(String(key).toLowerCase());
     if (!resolved) return;
     // 侧边栏点击始终可试听；键盘出声仍由 keybinding 的 padMode when 子句约束
@@ -582,7 +582,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       writeHit(editor.document.getText(), resolved.rowId, targetStep, armedTrackName),
     );
   });
-  register("cursorDaw.pickTrack", async () => {
+  register("vsDaw.pickTrack", async () => {
     const session = currentSession();
     const roleLabel: Record<TrackRole, string> = {
       drums: "鼓",
@@ -617,14 +617,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     applyRoleOctave(picked.role);
     updateStatus();
   });
-  register("cursorDaw.octaveUp", () => {
+  register("vsDaw.octaveUp", () => {
     // 钢琴四排顶到约 C7；吉他/贝斯三排
     const role = armedRole();
     const max = role === "bass" ? 3 : role === "keys" ? 4 : 5;
     octave = Math.min(max, octave + 1);
     updateStatus();
   });
-  register("cursorDaw.octaveDown", () => {
+  register("vsDaw.octaveDown", () => {
     const min = armedRole() === "bass" ? 0 : 1;
     octave = Math.max(min, octave - 1);
     updateStatus();
@@ -662,7 +662,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     updateStatus();
   };
 
-  register("cursorDaw.seek", (sec: number) => {
+  register("vsDaw.seek", (sec: number) => {
     if (!source) return;
     seekTo(sec);
   });
@@ -709,7 +709,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       sidebar?.refreshPlaylist();
     }, 0);
   };
-  register("cursorDaw.exportMidi", async () => {
+  register("vsDaw.exportMidi", async () => {
     const text = currentSource()?.text;
     if (!text) {
       void vscode.window.showWarningMessage("没有可导出的工程");
@@ -727,7 +727,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await vscode.workspace.fs.writeFile(uri, bytes);
     void vscode.window.showInformationMessage(`已导出 ${path.basename(uri.fsPath)}`);
   });
-  register("cursorDaw.importMidi", async () => {
+  register("vsDaw.importMidi", async () => {
     const picked = await vscode.window.showOpenDialog({
       canSelectMany: false,
       filters: { MIDI: ["mid", "midi"] },
@@ -771,7 +771,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }),
   );
 
-  void vscode.commands.executeCommand("setContext", "cursorDaw.playing", false);
+  void vscode.commands.executeCommand("setContext", "vsDaw.playing", false);
   if (vscode.window.activeTextEditor) {
     ensureDawLanguage(vscode.window.activeTextEditor.document);
   }
@@ -804,7 +804,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       void vscode.window.showInformationMessage(
         copied.length === 0
           ? "示例已全部存在"
-          : `已同步 ${copied.length} 首示例到 ~/.cursor-daw`,
+          : `已同步 ${copied.length} 首示例到 ~/.vs-daw`,
       );
       sidebar?.refreshPlaylist();
     },

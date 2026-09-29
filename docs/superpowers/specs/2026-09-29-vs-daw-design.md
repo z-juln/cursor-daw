@@ -1,12 +1,12 @@
-# Cursor DAW Design
+# VS DAW Design
 
 日期：2026-09-29  
 状态：已对齐需求，待实现计划  
-前身：Cursor Drum（不兼容旧 `.drum` / `~/.cursor-drum`）
+前身：VS DAW（不兼容旧 `.drum` / `~/.vs-daw`）
 
 ## 目标
 
-把扩展从「纯文本鼓机」升级为 **Cursor 内的迷你 DAW**：
+把扩展从「纯文本鼓机」升级为 **编辑器内的迷你 DAW**：
 
 - 多乐器多轨文本工程（`.daw`）
 - 侧边栏交互贴近 DAW（库 / 演奏 / 创建）
@@ -18,18 +18,18 @@
 - 不嵌入完整 DAW UI（openDAW / LMMS / Ardour）
 - 不做音频波形轨、效果器机架、自动化包络
 - 不做完整吉他六线指法引擎（吉他走音高网格 + GM 音色）
-- 不兼容 Cursor Drum 旧文件与旧谱库路径
+- 不兼容 VS DAW 旧文件与旧谱库路径
 
 ## 产品命名与资源
 
 | 项 | 值 |
 |---|---|
-| 扩展 id / npm name | `cursor-daw` |
-| 显示名 | Cursor DAW |
-| 语言 id | `cursor-daw` |
+| 扩展 id / npm name | `vs-daw` |
+| 显示名 | VS DAW |
+| 语言 id | `vs-daw` |
 | 文件扩展名 | `.daw` |
-| 命令前缀 | `cursorDaw.*` |
-| 谱库根目录 | `~/.cursor-daw` |
+| 命令前缀 | `vsDaw.*` |
+| 谱库根目录 | `~/.vs-daw` |
 | Activity Bar icon | 新 SVG（波形/音符块，非鼓形） |
 
 GitHub remote 可暂保持现仓库；改名不阻塞实现。
@@ -59,7 +59,7 @@ GitHub remote 可暂保持现仓库；改名不阻塞实现。
 统一 **step 网格**；一个文件一首歌，多轨共用全局时间轴。
 
 ```text
-# cursor-daw 1
+# vs-daw 1
 bpm: 120
 meter: 4/4
 steps: 16
@@ -151,7 +151,7 @@ E2     |x=======x=======|
 
 ### 库
 
-- 根目录 `~/.cursor-daw`，目录树浏览
+- 根目录 `~/.vs-daw`，目录树浏览
 - 播放/暂停当前项；同步内置 examples；新建/重命名/删除目录；在目录内创建文件
 - 播放 = 整首 Session（全轨混音）
 
@@ -173,7 +173,7 @@ E2     |x=======x=======|
 
 ## 内置示例
 
-按目录组织（风格 / 节奏 / 多轨 demo），首次激活与「同步示例」递归复制到 `~/.cursor-daw`，已存在不覆盖。
+按目录组织（风格 / 节奏 / 多轨 demo），首次激活与「同步示例」递归复制到 `~/.vs-daw`，已存在不覆盖。
 
 ## 测试与验收（v1）
 

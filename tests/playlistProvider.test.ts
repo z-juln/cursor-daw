@@ -1,30 +1,30 @@
 import { asPlaylistRef, dropTargetFolder, parentOfPath } from "../src/sidebar/playlistProvider";
 import { scoreContextValue } from "../src/sidebar/scoreContext";
 
-const path = "/Users/me/.cursor-drum/backbeat.daw";
+const path = "/Users/me/.vs-daw/backbeat.daw";
 
 describe("scoreContextValue", () => {
   it("非当前曲目显示播放按钮", () => {
-    expect(scoreContextValue(path, { status: "playing" })).toBe("cursorDaw.score");
+    expect(scoreContextValue(path, { status: "playing" })).toBe("vsDaw.score");
     expect(scoreContextValue(path, {
       currentPath: "/other.daw",
       status: "playing",
-    })).toBe("cursorDaw.score");
+    })).toBe("vsDaw.score");
   });
 
   it("当前曲目播放中显示暂停按钮", () => {
     expect(scoreContextValue(path, { currentPath: path, status: "playing" }))
-      .toBe("cursorDaw.scorePlaying");
+      .toBe("vsDaw.scorePlaying");
   });
 
   it("当前曲目已暂停显示播放按钮", () => {
     expect(scoreContextValue(path, { currentPath: path, status: "paused" }))
-      .toBe("cursorDaw.scorePaused");
+      .toBe("vsDaw.scorePaused");
   });
 
   it("当前曲目已停止显示播放按钮", () => {
     expect(scoreContextValue(path, { currentPath: path, status: "stopped" }))
-      .toBe("cursorDaw.score");
+      .toBe("vsDaw.score");
   });
 });
 

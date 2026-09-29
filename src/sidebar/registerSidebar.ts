@@ -158,7 +158,7 @@ export function registerSidebar(
     return picked.folder;
   };
 
-  register("cursorDaw.openManual", async (which: string = "skill") => {
+  register("vsDaw.openManual", async (which: string = "skill") => {
     const manual = MANUALS[which] ?? MANUALS.skill;
     const uri = vscode.Uri.joinPath(context.extensionUri, ...manual.file.split("/"));
     try {
@@ -167,7 +167,7 @@ export function registerSidebar(
       await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(uri));
     }
   });
-  register("cursorDaw.syncLibrary", async () => {
+  register("vsDaw.syncLibrary", async () => {
     try {
       await host.syncLibrary();
       playlist.refresh();
@@ -175,10 +175,10 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`同步示例失败：${(error as Error).message}`);
     }
   });
-  register("cursorDaw.refreshLibrary", () => playlist.refresh());
-  register("cursorDaw.collapsePlaylist", () => playlist.collapseAll());
-  register("cursorDaw.openLibraryScore", openScore);
-  register("cursorDaw.playLibraryScore", async (item: unknown) => {
+  register("vsDaw.refreshLibrary", () => playlist.refresh());
+  register("vsDaw.collapsePlaylist", () => playlist.collapseAll());
+  register("vsDaw.openLibraryScore", openScore);
+  register("vsDaw.playLibraryScore", async (item: unknown) => {
     const target = itemPath(item);
     if (!target) return;
     try {
@@ -187,7 +187,7 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`播放失败：${(error as Error).message}`);
     }
   });
-  register("cursorDaw.pauseLibraryScore", async (item: unknown) => {
+  register("vsDaw.pauseLibraryScore", async (item: unknown) => {
     const target = itemPath(item);
     if (!target) return;
     try {
@@ -196,7 +196,7 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`暂停失败：${(error as Error).message}`);
     }
   });
-  register("cursorDaw.deleteLibraryScore", async (item: unknown) => {
+  register("vsDaw.deleteLibraryScore", async (item: unknown) => {
     const target = itemPath(item);
     if (!target) return;
     const answer = await vscode.window.showWarningMessage(
@@ -212,7 +212,7 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`删除失败：${(error as Error).message}`);
     }
   });
-  register("cursorDaw.createLibraryFolder", (item?: unknown) => {
+  register("vsDaw.createLibraryFolder", (item?: unknown) => {
     playlist.beginCreateFolder(folderRelativePath(item));
   });
   const renamePlaylistItem = (item?: unknown): void => {
@@ -220,9 +220,9 @@ export function registerSidebar(
     if (!ref) return;
     playlist.beginRename(ref);
   };
-  register("cursorDaw.renameLibraryFolder", renamePlaylistItem);
-  register("cursorDaw.renameLibraryItem", renamePlaylistItem);
-  register("cursorDaw.deleteLibraryFolder", async (item?: unknown) => {
+  register("vsDaw.renameLibraryFolder", renamePlaylistItem);
+  register("vsDaw.renameLibraryItem", renamePlaylistItem);
+  register("vsDaw.deleteLibraryFolder", async (item?: unknown) => {
     const ref = asPlaylistRef(item);
     if (!ref || ref.kind !== "folder") return;
     const empty = await isLibraryFolderEmpty(root, ref.relativePath);
@@ -241,13 +241,13 @@ export function registerSidebar(
       void vscode.window.showErrorMessage(`删除目录失败：${(error as Error).message}`);
     }
   });
-  register("cursorDaw.newScoreInFolder", (item?: unknown) => {
+  register("vsDaw.newScoreInFolder", (item?: unknown) => {
     const folder = folderRelativePath(item);
     creator.state.folder = folder;
     creator.refresh();
     playlist.beginCreateScore(folder);
   });
-  register("cursorDaw.moveLibraryItems", async (payload?: {
+  register("vsDaw.moveLibraryItems", async (payload?: {
     sources?: string[];
     destFolder?: string;
   }) => {
@@ -275,7 +275,7 @@ export function registerSidebar(
     }
     if (moved > 0) playlist.refresh();
   });
-  register("cursorDaw.creatorSetName", async () => {
+  register("vsDaw.creatorSetName", async () => {
     const value = await vscode.window.showInputBox({
       title: "工程名称",
       value: creator.state.name,
@@ -293,13 +293,13 @@ export function registerSidebar(
       creator.refresh();
     }
   });
-  register("cursorDaw.creatorSetFolder", async () => {
+  register("vsDaw.creatorSetFolder", async () => {
     const picked = await pickLibraryFolder("创建到哪个目录", creator.state.folder);
     if (picked === undefined) return;
     creator.state.folder = picked;
     creator.refresh();
   });
-  register("cursorDaw.creatorSetBpm", async () => {
+  register("vsDaw.creatorSetBpm", async () => {
     const value = await vscode.window.showInputBox({
       title: "BPM（20–400）",
       value: String(creator.state.bpm),
@@ -315,7 +315,7 @@ export function registerSidebar(
       creator.refresh();
     }
   });
-  register("cursorDaw.creatorSetBars", async () => {
+  register("vsDaw.creatorSetBars", async () => {
     const value = await vscode.window.showInputBox({
       title: "小节数（1–128）",
       value: String(creator.state.bars),
@@ -331,21 +331,21 @@ export function registerSidebar(
       creator.refresh();
     }
   });
-  register("cursorDaw.creatorCreate", () => createScore());
-  register("cursorDaw.newScore", () => {
+  register("vsDaw.creatorCreate", () => createScore());
+  register("vsDaw.newScore", () => {
     creator.state.folder = "";
     creator.refresh();
     playlist.beginCreateScore("");
   });
 
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider("cursorDaw.playlist", playlist, {
+    vscode.window.registerWebviewViewProvider("vsDaw.playlist", playlist, {
       webviewOptions: { retainContextWhenHidden: true },
     }),
-    vscode.window.registerWebviewViewProvider("cursorDaw.recorder", recorder, {
+    vscode.window.registerWebviewViewProvider("vsDaw.recorder", recorder, {
       webviewOptions: { retainContextWhenHidden: true },
     }),
-    vscode.window.registerTreeDataProvider("cursorDaw.creator", creator),
+    vscode.window.registerTreeDataProvider("vsDaw.creator", creator),
   );
 
   return {

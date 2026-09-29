@@ -29,7 +29,7 @@ npm run fetch:sf2   # 仅下载音源
 npm run package     # fetch + trim 原生库 + vsce package
 ```
 
-生成 `cursor-daw-*.vsix` 后，在 Cursor / VS Code 中 **Install from VSIX**。
+生成 `vs-daw-*.vsix` 后，在 VS Code / 兼容编辑器 中 **Install from VSIX**。
 
 ## 常用路径
 
@@ -38,7 +38,7 @@ npm run package     # fetch + trim 原生库 + vsce package
 | `src/extension.ts` | 激活、Transport、Pad、命令 |
 | `src/sidebar/` | 播放列表 / 录制 / 创建 |
 | `src/padLayout.ts` | 音高 Pad 键位 |
-| `src/library.ts` | `~/.cursor-daw` 谱库 |
+| `src/library.ts` | `~/.vs-daw` 谱库 |
 | `examples/` | 随扩展同步到谱库的示例 |
 | `media/soundfonts/` | GM SoundFont（体积大，勿手改进 git 大文件策略外） |
 
