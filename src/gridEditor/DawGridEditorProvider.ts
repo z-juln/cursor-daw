@@ -61,9 +61,6 @@ function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
     <label>steps <input id="steps" type="number" min="1" max="64" step="1" /></label>
     <label>swing <input id="swing" type="number" min="0" max="1" step="0.05" /></label>
   </div>
-  <div class="seek-wrap">
-    <input id="seek" type="range" min="0" max="0" step="1" value="0" />
-  </div>
   <div id="warn" class="warn" hidden></div>
   <div id="empty" class="empty" hidden>当前轨没有音高行。可切回文本编辑器添加行，或用 Pad 录制。</div>
   <div id="scroller" class="scroller"></div>
