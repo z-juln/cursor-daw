@@ -37,6 +37,18 @@
         "path": "./syntaxes/vs-daw.tmLanguage.json"
       }
     ],
+    "customEditors": [
+      {
+        "viewType": "vsDaw.gridEditor",
+        "displayName": "VS DAW Grid",
+        "selector": [
+          {
+            "filenamePattern": "*.daw"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {

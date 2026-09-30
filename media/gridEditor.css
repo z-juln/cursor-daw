@@ -1,0 +1,137 @@
+:root {
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+
+body {
+  margin: 0;
+  padding: 8px;
+  background: var(--vscode-editor-background);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.toolbar select,
+.toolbar input {
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, transparent);
+  padding: 2px 6px;
+  border-radius: 2px;
+  min-width: 0;
+}
+
+.toolbar input[type="number"] {
+  width: 64px;
+}
+
+.warn {
+  background: var(--vscode-inputValidation-warningBackground);
+  color: var(--vscode-inputValidation-warningForeground);
+  border: 1px solid var(--vscode-inputValidation-warningBorder);
+  padding: 6px 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.warn[hidden] {
+  display: none;
+}
+
+.scroller {
+  overflow: auto;
+  max-height: calc(100vh - 72px);
+  border: 1px solid var(--vscode-widget-border, rgba(127, 127, 127, 0.3));
+}
+
+table.grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--vscode-editor-font-family, ui-monospace, Menlo, monospace);
+  font-size: var(--vscode-editor-font-size, 12px);
+  line-height: 1.4;
+}
+
+th,
+td {
+  border-right: 1px solid rgba(127, 127, 127, 0.2);
+  border-bottom: 1px solid rgba(127, 127, 127, 0.2);
+  padding: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--vscode-editor-background);
+  min-width: 22px;
+  height: 22px;
+  font-weight: 500;
+  color: var(--vscode-descriptionForeground);
+}
+
+th.pitch {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--vscode-editor-background);
+  min-width: 48px;
+  padding: 0 8px;
+  text-align: left;
+  color: #ce9178;
+  border-right: 2px solid rgba(206, 145, 120, 0.55);
+}
+
+thead th.pitch {
+  z-index: 4;
+}
+
+td.cell {
+  min-width: 22px;
+  height: 22px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--vscode-descriptionForeground);
+}
+
+td.cell.onset {
+  color: #4ec9b0;
+  background: rgba(78, 201, 176, 0.12);
+}
+
+td.cell.hold {
+  color: #dcdcaa;
+  background: rgba(220, 220, 170, 0.08);
+}
+
+td.cell.bar-start {
+  border-left: 1px solid rgba(127, 127, 127, 0.45);
+}
+
+td.cell.playhead,
+th.step.playhead {
+  box-shadow: inset 0 0 0 1px var(--vscode-focusBorder);
+  background: color-mix(in srgb, var(--vscode-focusBorder) 18%, transparent);
+}
+
+.empty {
+  padding: 24px;
+  color: var(--vscode-descriptionForeground);
+}

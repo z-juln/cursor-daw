@@ -23,6 +23,11 @@ import { scheduleSession, scoreDurationSec, stepDurationSec } from "./schedule";
 import { emptyTemplate, formatScoreText, formatSessionText, writeHit } from "./serialize";
 import { registerSidebar, SidebarController } from "./sidebar/registerSidebar";
 import {
+  broadcastPlayhead,
+  getActiveGridDocument,
+  registerGridEditor,
+} from "./gridEditor/DawGridEditorProvider";
+import {
   createTransport,
   positionAt,
   reduceTransport,
@@ -123,9 +128,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     return isDrumEditor(editor) ? editor : undefined;
   };
 
-  const currentSource = (): PlaybackSource | undefined => {
+  const activeDawDocument = (): vscode.TextDocument | undefined => {
     const editor = activeDawEditor();
-    if (editor) return { uri: editor.document.uri, text: editor.document.getText() };
+    if (editor) return editor.document;
+    const grid = getActiveGridDocument();
+    if (!grid) return undefined;
+    if (grid.languageId === "vs-daw") return grid;
+    return path.extname(grid.fileName).toLowerCase() === ".daw" ? grid : undefined;
+  };
+
+  const currentSource = (): PlaybackSource | undefined => {
+    const document = activeDawDocument();
+    if (document) return { uri: document.uri, text: document.getText() };
     return source;
   };
 
@@ -157,11 +171,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   };
 
   const currentSession = (): Session | undefined => {
-    const editor = activeDawEditor();
-    if (editor) {
-      const key = `${editor.document.uri.toString()}:${editor.document.version}`;
+    const document = activeDawDocument();
+    if (document) {
+      const key = `${document.uri.toString()}:${document.version}`;
       if (sessionCache && sessionDocKey === key) return sessionCache;
-      const text = editor.document.getText();
+      const text = document.getText();
       const lines = text.split(/\r?\n/);
       return rememberSession(
         parseSession(text),
@@ -243,10 +257,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   const updatePlayhead = (force = false): void => {
     const sourceKey = source?.uri?.toString();
+    let stepped: number | undefined;
     if (playheadIndex && !force) {
       const step = playheadStep(playheadIndex, currentPosition);
       if (step === lastPlayheadStep) return;
       lastPlayheadStep = step;
+      stepped = step;
     }
     for (const editor of vscode.window.visibleTextEditors) {
       if (!isDrumEditor(editor)) continue;
@@ -269,6 +285,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         return new vscode.Range(cell.line, start, cell.line, end);
       });
       editor.setDecorations(playhead, ranges);
+    }
+    if (playheadIndex && source?.uri) {
+      broadcastPlayhead(
+        source.uri,
+        stepped ?? playheadStep(playheadIndex, currentPosition),
+      );
     }
   };
 
@@ -313,6 +335,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       text,
     );
   });
+
+  const replaceDocumentText = async (
+    document: vscode.TextDocument,
+    text: string,
+  ): Promise<boolean> => {
+    const edit = new vscode.WorkspaceEdit();
+    const full = new vscode.Range(
+      document.positionAt(0),
+      document.positionAt(document.getText().length),
+    );
+    edit.replace(document.uri, full, text);
+    return vscode.workspace.applyEdit(edit);
+  };
 
   const loadSource = async (next: PlaybackSource): Promise<boolean> => {
     const session = parseSession(next.text);
@@ -401,9 +436,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       return;
     }
     const editor = activeDawEditor();
-    if (!explicit && editor && next.text.trim() === "") {
-      await replaceDocument(editor, emptyTemplate());
-      next = { uri: editor.document.uri, text: editor.document.getText() };
+    const document = activeDawDocument();
+    if (!explicit && document && next.text.trim() === "") {
+      if (editor) await replaceDocument(editor, emptyTemplate());
+      else await replaceDocumentText(document, emptyTemplate());
+      next = { uri: document.uri, text: (activeDawDocument() ?? document).getText() };
     }
 
     // 暂停/停止后同曲未改内容：跳过 SoundFont 整曲重渲染，直接续播
@@ -500,7 +537,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   });
   register("vsDaw.formatScore", async () => {
     const editor = activeDawEditor();
-    if (editor) await replaceDocument(editor, formatScoreText(editor.document.getText()));
+    if (editor) {
+      await replaceDocument(editor, formatScoreText(editor.document.getText()));
+      return;
+    }
+    const document = activeDawDocument();
+    if (document) await replaceDocumentText(document, formatScoreText(document.getText()));
   });
   register("vsDaw.playPause", () => applyTransport({ type: "playPause" }));
   register("vsDaw.editorPlay", () => applyTransport({ type: "play" }));
@@ -508,13 +550,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   register("vsDaw.restart", () => applyTransport({ type: "restart" }));
   register("vsDaw.stop", () => applyTransport({ type: "stop" }));
   register("vsDaw.cloneScore", async () => {
-    const editor = activeDawEditor();
-    if (!editor) {
+    const document = activeDawDocument();
+    if (!document) {
       void vscode.window.showWarningMessage("请先打开 .daw 工程");
       return;
     }
-    const text = editor.document.getText();
-    const original = editor.document.uri;
+    const text = document.getText();
+    const original = document.uri;
     let target: vscode.Uri;
     if (original.scheme !== "file") {
       const picked = await vscode.window.showSaveDialog({
@@ -556,7 +598,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     withAudio(() => audio.noteOn(resolved.note, resolved.velocity, resolved.channel, resolved.program));
     if (!recordingMode.enabled) return;
     const editor = activeDawEditor();
-    if (!editor) {
+    const document = activeDawDocument();
+    if (!document) {
       void vscode.window.showWarningMessage("录制需要先打开 .daw 工程");
       return;
     }
@@ -564,7 +607,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       void vscode.window.showWarningMessage(`当前工程没有轨「${armedTrackName}」，请先切换乐器`);
       return;
     }
-    const session = parseSession(editor.document.getText() || emptyTemplate());
+    const session = parseSession(document.getText() || emptyTemplate());
     const step = Math.max(
       0,
       Math.min(
@@ -572,15 +615,17 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         Math.max(0, ...session.tracks.flatMap((t) => t.rows.map((r) => r.cells.length))) || 31,
       ),
     );
-    const caretStep = columnToStep(
-      editor.document.lineAt(editor.selection.active.line).text,
-      editor.selection.active.character,
-    );
-    const targetStep = Number.isFinite(caretStep) ? caretStep : step;
-    await replaceDocument(
-      editor,
-      writeHit(editor.document.getText(), resolved.rowId, targetStep, armedTrackName),
-    );
+    let targetStep = step;
+    if (editor) {
+      const caretStep = columnToStep(
+        editor.document.lineAt(editor.selection.active.line).text,
+        editor.selection.active.character,
+      );
+      if (Number.isFinite(caretStep)) targetStep = caretStep;
+    }
+    const next = writeHit(document.getText(), resolved.rowId, targetStep, armedTrackName);
+    if (editor) await replaceDocument(editor, next);
+    else await replaceDocumentText(document, next);
   });
   register("vsDaw.pickTrack", async () => {
     const session = currentSession();
@@ -747,6 +792,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     playhead,
     output,
     { dispose: () => audio.dispose() },
+    registerGridEditor(context),
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor) ensureDawLanguage(editor.document);
       if (isDrumEditor(editor) && getPadModeOnOpen()) {
