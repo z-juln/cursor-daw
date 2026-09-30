@@ -53,9 +53,20 @@ body {
   display: none;
 }
 
+.seek-wrap {
+  width: 100%;
+  margin: 0 0 8px;
+}
+
+.seek-wrap input[type="range"] {
+  width: 100%;
+  accent-color: var(--vscode-focusBorder);
+  cursor: pointer;
+}
+
 .scroller {
   overflow: auto;
-  max-height: calc(100vh - 72px);
+  max-height: calc(100vh - 110px);
   border: 1px solid var(--vscode-widget-border, rgba(127, 127, 127, 0.3));
 }
 

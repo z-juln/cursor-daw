@@ -27,6 +27,7 @@ import {
   getActiveGridDocument,
   GRID_VIEW_TYPE,
   registerGridEditor,
+  setGridSeekByStepHandler,
 } from "./gridEditor/DawGridEditorProvider";
 import {
   createTransport,
@@ -709,13 +710,52 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   };
 
   register("vsDaw.seek", (sec: number) => {
-    if (!source) return;
+    if (!source) {
+      const document = activeDawDocument();
+      if (!document) return;
+      source = { uri: document.uri, text: document.getText() };
+      const session = parseSession(source.text);
+      const lines = source.text.split(/\r?\n/);
+      rememberSession(session, `${document.uri.toString()}:${document.version}`, (i) => lines[i]);
+      currentDuration = scoreDurationSec(session);
+    }
     seekTo(sec);
   });
 
   /** 在格子行上鼠标点选/拖动 → 按列 seek（装饰无法拖拽，用光标位置充当定位器）。 */
   const GRID_ROW_RE = /^[A-Za-z#][A-Za-z0-9#_^-]{0,15}(?:\s+|\s*(?=\|)).*\|/;
   let lastScrubAudioMs = 0;
+
+  setGridSeekByStepHandler((uri, stepIndex) => {
+    const document = vscode.workspace.textDocuments.find(
+      (item) => item.uri.toString() === uri.toString(),
+    ) ?? (getActiveGridDocument()?.uri.toString() === uri.toString()
+      ? getActiveGridDocument()
+      : undefined);
+    if (!document) return;
+    const text = document.getText();
+    const session = parseSession(text);
+    const stepSec = stepDurationSec(session);
+    if (!(stepSec > 0)) return;
+    currentDuration = scoreDurationSec(session);
+    source = { uri: document.uri, text };
+    const lines = text.split(/\r?\n/);
+    rememberSession(session, `${document.uri.toString()}:${document.version}`, (i) => lines[i]);
+    const now = Date.now();
+    const shouldAudio = audio.hasBuffer
+      && (transport.status !== "playing" || now - lastScrubAudioMs >= 80);
+    if (shouldAudio) lastScrubAudioMs = now;
+    seekTo(stepIndex * stepSec, {
+      audio: shouldAudio,
+      chrome: false,
+    });
+    pushTransportChrome();
+    setTimeout(() => {
+      sidebar?.refreshPlaylist();
+      sidebar?.refreshRecorder();
+    }, 0);
+  });
+
   const scrubFromMouse = (editor: vscode.TextEditor, line: number, character: number): void => {
     const lineText = editor.document.lineAt(line).text;
     if (!GRID_ROW_RE.test(lineText)) return;

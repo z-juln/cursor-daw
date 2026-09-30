@@ -14,9 +14,16 @@ interface GridPanel {
 
 const panels = new Set<GridPanel>();
 let activeGridDocument: vscode.TextDocument | undefined;
+let seekByStepHandler: ((uri: vscode.Uri, stepIndex: number) => void) | undefined;
 
 export function getActiveGridDocument(): vscode.TextDocument | undefined {
   return activeGridDocument;
+}
+
+export function setGridSeekByStepHandler(
+  handler: ((uri: vscode.Uri, stepIndex: number) => void) | undefined,
+): void {
+  seekByStepHandler = handler;
 }
 
 export function broadcastPlayhead(uri: vscode.Uri | undefined, step: number): void {
@@ -53,6 +60,9 @@ function getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {
     <label>meter <input id="meter" type="text" size="6" /></label>
     <label>steps <input id="steps" type="number" min="1" max="64" step="1" /></label>
     <label>swing <input id="swing" type="number" min="0" max="1" step="0.05" /></label>
+  </div>
+  <div class="seek-wrap">
+    <input id="seek" type="range" min="0" max="0" step="1" value="0" />
   </div>
   <div id="warn" class="warn" hidden></div>
   <div id="empty" class="empty" hidden>当前轨没有音高行。可切回文本编辑器添加行，或用 Pad 录制。</div>
@@ -136,6 +146,12 @@ export class DawGridEditorProvider implements vscode.CustomTextEditorProvider {
         const session = parseSession(document.getText());
         const next = applyCellEdit(session, trackName, rowId, stepIndex, shift);
         await replaceDocumentText(document, formatSessionText(next));
+        return;
+      }
+      if (message.type === "seekStep") {
+        const stepIndex = Number(message.stepIndex);
+        if (!Number.isFinite(stepIndex) || stepIndex < 0) return;
+        seekByStepHandler?.(document.uri, stepIndex);
         return;
       }
       if (message.type === "headerChange" && message.fields && typeof message.fields === "object") {
