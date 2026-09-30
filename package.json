@@ -276,17 +276,17 @@
       "editor/title": [
         {
           "command": "vsDaw.editorPlay",
-          "when": "resourceExtname == .daw && !vsDaw.playing",
+          "when": "(resourceExtname == .daw || activeCustomEditorId == vsDaw.gridEditor) && !vsDaw.playing",
           "group": "navigation@1"
         },
         {
           "command": "vsDaw.editorPause",
-          "when": "resourceExtname == .daw && vsDaw.playing",
+          "when": "(resourceExtname == .daw || activeCustomEditorId == vsDaw.gridEditor) && vsDaw.playing",
           "group": "navigation@1"
         },
         {
           "command": "vsDaw.cloneScore",
-          "when": "resourceExtname == .daw",
+          "when": "resourceExtname == .daw || activeCustomEditorId == vsDaw.gridEditor",
           "group": "navigation@2"
         }
       ],
