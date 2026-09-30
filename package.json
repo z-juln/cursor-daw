@@ -27,7 +27,11 @@
         "extensions": [
           ".daw"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./media/daw-file-light.svg",
+          "dark": "./media/daw-file-dark.svg"
+        }
       }
     ],
     "grammars": [
