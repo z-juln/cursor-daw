@@ -4,8 +4,17 @@
   font-size: var(--vscode-font-size);
 }
 
+html,
 body {
+  height: 100%;
   margin: 0;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   padding: 8px;
   background: var(--vscode-editor-background);
 }
@@ -16,6 +25,7 @@ body {
   gap: 8px 12px;
   align-items: center;
   margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .toolbar label {
@@ -47,6 +57,7 @@ body {
   padding: 6px 8px;
   margin-bottom: 8px;
   font-size: 12px;
+  flex-shrink: 0;
 }
 
 .warn[hidden] {
@@ -54,8 +65,9 @@ body {
 }
 
 .scroller {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
-  max-height: calc(100vh - 72px);
   border: 1px solid var(--vscode-widget-border, rgba(127, 127, 127, 0.3));
 }
 
@@ -134,4 +146,5 @@ th.step.playhead {
 .empty {
   padding: 24px;
   color: var(--vscode-descriptionForeground);
+  flex-shrink: 0;
 }
