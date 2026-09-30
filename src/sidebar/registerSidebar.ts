@@ -14,6 +14,7 @@ import {
   sanitizeScoreName,
 } from "../library";
 import { emptyTemplate } from "../serialize";
+import { GRID_VIEW_TYPE } from "../gridEditor/DawGridEditorProvider";
 import { CreatorProvider } from "./creatorProvider";
 import {
   asPlaylistRef,
@@ -79,8 +80,11 @@ export function registerSidebar(
   const openScore = async (value: unknown): Promise<void> => {
     const target = itemPath(value);
     if (!target) return;
-    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(target));
-    await vscode.window.showTextDocument(document);
+    await vscode.commands.executeCommand(
+      "vscode.openWith",
+      vscode.Uri.file(target),
+      GRID_VIEW_TYPE,
+    );
   };
 
   playlist.configure({

@@ -25,6 +25,7 @@ import { registerSidebar, SidebarController } from "./sidebar/registerSidebar";
 import {
   broadcastPlayhead,
   getActiveGridDocument,
+  GRID_VIEW_TYPE,
   registerGridEditor,
 } from "./gridEditor/DawGridEditorProvider";
 import {
@@ -588,7 +589,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }
     await vscode.workspace.fs.writeFile(target, Buffer.from(text, "utf8"));
     sidebar?.refreshPlaylist();
-    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(target));
+    await vscode.commands.executeCommand("vscode.openWith", target, GRID_VIEW_TYPE);
     void vscode.window.showInformationMessage(`已克隆为 ${path.basename(target.fsPath)}`);
   });
   register("vsDaw.padHit", async (key: string) => {
@@ -785,7 +786,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const target = path.join(libraryRoot, `${base}.daw`);
     await vscode.workspace.fs.writeFile(vscode.Uri.file(target), Buffer.from(content, "utf8"));
     sidebar?.refreshPlaylist();
-    await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(target));
+    await vscode.commands.executeCommand(
+      "vscode.openWith",
+      vscode.Uri.file(target),
+      GRID_VIEW_TYPE,
+    );
   });
 
   context.subscriptions.push(
