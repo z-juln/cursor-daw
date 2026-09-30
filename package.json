@@ -743,7 +743,8 @@
     "test": "jest",
     "verify:audio": "esbuild scripts/verifyAudio.ts --bundle --platform=node --format=cjs --external:node-web-audio-api --external:spessasynth_core --external:stb-vorbis --outfile=dist/verifyAudio.cjs --log-level=warning && node dist/verifyAudio.cjs",
     "fetch:sf2": "node scripts/fetchSf2.mjs",
-    "package": "node scripts/fetchSf2.mjs && node scripts/trimNative.mjs && npx @vscode/vsce package --no-rewrite-relative-links --skip-license"
+    "package": "node scripts/fetchSf2.mjs && node scripts/trimNative.mjs && npx @vscode/vsce package --no-rewrite-relative-links --skip-license",
+    "package:local": "npm run compile && node scripts/package-local.mjs"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

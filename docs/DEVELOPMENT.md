@@ -17,19 +17,27 @@ npm test
 npm run compile
 ```
 
-- F5 启动 Extension Development Host
-- 监听编译：`npm run compile -- --watch`（若脚本支持）或按 `esbuild.mjs` 的 `--watch`
+- **推荐**：Cursor / VS Code 里 F5（`Run VS DAW Extension`）开 Extension Development Host，不覆盖已安装的商店版
+- 监听编译：`npm run watch`
 
 ## 打包与安装
 
 打包前会拉取 / 校验 SoundFont（约 38MB）：
 
 ```bash
-npm run fetch:sf2   # 仅下载音源
-npm run package     # fetch + trim 原生库 + vsce package
+npm run fetch:sf2      # 仅下载音源
+npm run package        # 正式包（与 package.json version 一致，可发商店）
+npm run package:local  # 本地测试包：version=0.0.0-local.*，displayName 带 (Local)
 ```
 
-生成 `vs-daw-*.vsix` 后，在 VS Code / 兼容编辑器 中 **Install from VSIX**。
+- **正式包** `vs-daw-x.y.z.vsix`：发给用户 / 上传 Marketplace、Open VSX
+- **本地包** `vs-daw-0.0.0-local.*.vsix`：`cursor --install-extension … --force` 装进当前编辑器；扩展 id 仍是 `vs-daw.vs-daw`，商店出现**更高**正式版本后可以自动/手动更新覆盖。不要把 local 包发到商店。
+
+生成后：**Install from VSIX**，或：
+
+```bash
+cursor --install-extension vs-daw-0.0.0-local.*.vsix --force
+```
 
 ## 常用路径
 
